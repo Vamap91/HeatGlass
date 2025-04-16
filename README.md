@@ -1,19 +1,10 @@
-# 🎈 Blank app template
+🔥 HeatGlass – Inteligência Emocional para Ligações
+HeatGlass é um app com inteligência artificial que analisa gravações de ligações telefônicas para:
 
-A simple Streamlit app template for you to modify!
+📝 Transcrever automaticamente o áudio (.mp3)
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+🌡️ Avaliar a temperatura emocional da conversa (quente ou fria)
 
-### How to run it on your own machine
+💡 Gerar um resumo objetivo do atendimento
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+Criado para elevar o padrão de monitoria e qualidade no atendimento ao cliente — com identidade visual inspirada na Carglass e uma UX encantadora.
