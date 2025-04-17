@@ -1,14 +1,20 @@
-# =============================
-# 🔧 IMPORTAÇÕES
-# =============================
-import streamlit as st
+from docx import Document
+from datetime import date
+
+# Criar o documento Word com o código completo atualizado
+doc = Document()
+doc.add_heading('streamlit_app.py – HeatGlass v3 (Análise Emocional + Impacto + Checklist Técnico)', 0)
+doc.add_paragraph(f"Gerado para: Vinícius, o pai do Joaquim")
+doc.add_paragraph(f"Data: {date.today().strftime('%d/%m/%Y')}")
+doc.add_paragraph("Este documento contém o código completo da versão mais atualizada do HeatGlass, considerando a análise emocional, o checklist técnico e o cálculo de impacto comercial com regras mais rígidas.")
+
+# Adiciona o código em um parágrafo pré-formatado
+with open("/mnt/data/heatglass_v3_code.py", "w") as code_file:
+    code_file.write('''import streamlit as st
 from openai import OpenAI
 import tempfile
 import re
 
-# =============================
-# ⚙️ CONFIGURAÇÃO DA PÁGINA
-# =============================
 st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
 
 st.markdown("""
@@ -36,20 +42,11 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# =============================
-# 🔐 INICIALIZAÇÃO DO CLIENTE OPENAI
-# =============================
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# =============================
-# 🟥 TÍTULO E INSTRUÇÃO
-# =============================
 st.title("HeatGlass")
-st.write("Análise de ligações com transcrição, impacto comercial, temperatura emocional e avaliação técnica do atendimento.")
+st.write("Análise de ligações com transcrição, impacto comercial, temperatura emocional e checklist técnico.")
 
-# =============================
-# 📤 UPLOAD DO ÁUDIO
-# =============================
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
 
 if uploaded_file is not None:
@@ -59,9 +56,6 @@ if uploaded_file is not None:
 
     st.audio(uploaded_file, format='audio/mp3')
 
-    # =============================
-    # 🧠 TRANSCRIÇÃO COM WHISPER
-    # =============================
     with st.spinner("Transcrevendo o áudio..."):
         with open(tmp_path, "rb") as audio_file:
             transcript = client.audio.transcriptions.create(
@@ -73,50 +67,48 @@ if uploaded_file is not None:
     st.subheader("Transcrição da Ligação")
     st.code(transcript_text, language="markdown")
 
-    # =============================
-    # 🤖 PROMPT DE ANÁLISE COMPLETA
-    # =============================
-    prompt = f"""
-Você é um especialista em atendimento ao cliente e auditor de qualidade. Com base na transcrição de uma ligação, realize duas análises:
+    prompt = f\"\"\"Você é um especialista em atendimento ao cliente e auditor de qualidade. Com base na transcrição de uma ligação, realize duas análises:
 
 1. Análise emocional e comercial:
 - Temperatura emocional: Calma, Neutra, Tensa ou Muito Tensa.
 - Justifique com base no humor do cliente e na condução do atendente.
 - Impacto no negócio (0 a 100%): Quanto a ligação favoreceu a empresa?
+
+Avalie o impacto no negócio com base nos critérios abaixo:
+• Se o cliente demonstrou insatisfação, frustração ou ameaça de cancelamento → o impacto deve ser inferior a 50%.
+• Se o cliente mencionou problemas anteriores com a empresa → penalize o percentual.
+• Se o cliente finalizou satisfeito, confiante e com boa expectativa → o impacto pode ser maior.
+• Só atribua 100% se houver clareza de satisfação total por parte do cliente ao final da ligação.
+
 - Situação final: O cliente ficou satisfeito? Houve fechamento, cancelamento ou risco?
 
 2. Avaliação técnica do atendimento com base no checklist abaixo. Para cada item, responda "Sim" ou "Não" com justificativa. Some os pontos dos itens marcados como "Sim" e exiba ao final:
 
 Checklist de Qualidade (com pontuação):
-
-1. Atendeu prontamente com saudação correta? – 10 pts
-2. Confirmou histórico do cliente? – 7 pts
-3. Confirmou dados do cadastro e dois telefones? – 6 pts
-4. Verbalizou o script da LGPD? – 2 pts
-5. Utilizou técnica do eco? – 5 pts
-6. Escutou atentamente e evitou duplicidade? – 3 pts
-7. Demonstrou domínio do serviço? – 5 pts
-8. Consultou o manual antes de pedir ajuda? – 2 pts
-9. Confirmou informações completas sobre o dano? – 10 pts
-10. Confirmou data/motivo da quebra e detalhes técnicos? – 10 pts
-11. Confirmou cidade e escolheu loja corretamente? – 10 pts
-12. Comunicação adequada, sem gírias, avisando pausas? – 5 pts
-13. Registro correto da ligação e evitou recontato? – 6 pts
-14. Fez encerramento completo com orientações? – 15 pts
-15. Informou sobre pesquisa de satisfação? – 6 pts
-16. Tabulação correta? – 4 pts
+1. Saudação correta e atendimento imediato – 10 pts
+2. Confirmação do histórico do cliente – 7 pts
+3. Confirmação dos dados e dois telefones – 6 pts
+4. Verbalização do script da LGPD – 2 pts
+5. Técnica do eco para garantir entendimento – 5 pts
+6. Escuta ativa e atenção à solicitação – 3 pts
+7. Domínio do serviço – 5 pts
+8. Consulta ao manual antes de pedir ajuda – 2 pts
+9. Confirmação de dados sobre o dano – 10 pts
+10. Registro técnico detalhado (LED, Xenon etc) – 10 pts
+11. Seleção correta da loja – 10 pts
+12. Comunicação adequada, sem gírias – 5 pts
+13. Registro correto e resolução completa – 6 pts
+14. Script de encerramento completo – 15 pts
+15. Informação sobre pesquisa de satisfação – 6 pts
+16. Tabulação correta – 4 pts
 
 Apresente o resultado assim:
 - Checklist = X pontos de 100
 - Itens não atendidos: liste os números e sugestões de melhoria.
 
 Transcrição:
-\"\"\"{transcript_text}\"\"\"
-"""
+\"\"\"{transcript_text}\"\"\"\"\"\")
 
-    # =============================
-    # 🧠 CHAMADA À OPENAI
-    # =============================
     with st.spinner("Analisando a conversa..."):
         response = client.chat.completions.create(
             model="gpt-4",
@@ -125,18 +117,12 @@ Transcrição:
         )
         output = response.choices[0].message.content
 
-    # =============================
-    # 📊 EXTRAÇÃO DOS RESULTADOS
-    # =============================
-    match_impacto = re.search(r"Impacto.*?(\d{1,3})%", output)
+    match_impacto = re.search(r"Impacto.*?(\\d{1,3})%", output)
     impacto = int(match_impacto.group(1)) if match_impacto else None
 
-    match_pontos = re.search(r"Checklist\s*=\s*(\d{1,3})\s*pontos", output, re.IGNORECASE)
+    match_pontos = re.search(r"Checklist\\s*=\\s*(\\d{1,3})\\s*pontos", output, re.IGNORECASE)
     checklist_pontos = int(match_pontos.group(1)) if match_pontos else None
 
-    # =============================
-    # 🌡️ IMPACTO COMERCIAL
-    # =============================
     if impacto is not None:
         st.subheader("Impacto no negócio")
         st.progress(impacto / 100)
@@ -152,15 +138,17 @@ Transcrição:
             status = "🟩 Excelente"
         st.write(f"Resultado: **{status}** ({impacto}%)")
 
-    # =============================
-    # 🧾 CHECK LIST
-    # =============================
     if checklist_pontos is not None:
         st.subheader("Check List Técnico")
         st.write(f"Resultado: **{checklist_pontos} pontos de 100**")
 
-    # =============================
-    # 📋 ANÁLISE FINAL DETALHADA
-    # =============================
     st.subheader("Análise da Ligação")
     st.markdown(f"<div class='result-box'>{output}</div>", unsafe_allow_html=True)
+''')
+
+# Salvar o documento com o caminho correto
+file_path = "/mnt/data/HeatGlass_v3_Completo_Codigo_Revisado.docx"
+doc.add_paragraph("Arquivo gerado com o código completo.")
+doc.save(file_path)
+
+file_path
