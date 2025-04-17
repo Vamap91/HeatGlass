@@ -40,7 +40,7 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# Inicializa o cliente OpenAI com a chave já configurada no Streamlit Secrets
+# Inicializa o cliente OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Título
@@ -57,7 +57,6 @@ if uploaded_file is not None:
 
     st.audio(uploaded_file, format='audio/mp3')
 
-    # Botão para iniciar análise
     if st.button("🔍 Analisar Atendimento"):
         # Transcrição com Whisper
         with st.spinner("Transcrevendo o áudio..."):
@@ -71,7 +70,7 @@ if uploaded_file is not None:
         with st.expander("Ver transcrição completa"):
             st.code(transcript_text, language="markdown")
 
-        # Prompt estratégico
+        # Prompt estratégico com instrução final reforçada
         prompt = f"""
 Você é um especialista em atendimento ao cliente, com foco na avaliação inteligente de ligações telefônicas. Sua missão é analisar transcrições de áudios e gerar um diagnóstico completo, seguindo quatro blocos principais:
 
@@ -83,12 +82,10 @@ Por favor, faça uma análise completa abordando os seguintes pontos:
 1. TEMPERATURA EMOCIONAL DA LIGAÇÃO
 - Classifique como: `Calma`, `Neutra`, `Tensa` ou `Muito Tensa`
 - Justifique sua escolha com base no tom do cliente e do atendente
-- Avalie linguagem emocional, ritmo da conversa e palavras-chave de tensão
 
 2. IMPACTO COMERCIAL
 - De 0% a 100%, qual o impacto desta ligação para o negócio?
-- Considere: postura do atendente, humor do cliente, resultado final
-- Classifique a nota dentro das faixas:
+- Classifique:
   * 0-25% → Crítico 🔴
   * 26-50% → Baixo 🟠
   * 51-70% → Razoável 🟡
@@ -98,150 +95,107 @@ Por favor, faça uma análise completa abordando os seguintes pontos:
 3. STATUS FINAL DO ATENDIMENTO
 - O cliente ficou satisfeito?
 - Houve risco de perda ou fechamento?
-- Qual foi o desfecho: resolvido, pendente ou insatisfatório?
+- Qual foi o desfecho?
 
-4. CHECKLIST TÉCNICO DE ATENDIMENTO (Pontuação Total = 100 pts)
-Para cada item abaixo, responda `Sim` ou `Não` com uma breve justificativa.
+4. CHECKLIST TÉCNICO (100 pts)
+Responda com Sim/Não e justificativa:
 
 1. Saudação inicial adequada (10 pts)
 2. Confirmou histórico do cliente (7 pts)
 3. Solicitou dois telefones logo no início (6 pts)
 4. Verbalizou o script da LGPD (2 pts)
-5. Usou a técnica do eco (validação) (5 pts)
+5. Usou a técnica do eco (5 pts)
 6. Escutou com atenção, sem repetições desnecessárias (3 pts)
 7. Demonstrou domínio sobre o serviço (5 pts)
 8. Consultou o manual antes de pedir ajuda (2 pts)
 9. Confirmou corretamente o veículo e ano (5 pts)
 10. Perguntou data e motivo do dano (5 pts)
 11. Confirmou cidade do cliente (3 pts)
-12. Selecionou a primeira loja sugerida no sistema (5 pts)
-13. Explicou link de acompanhamento claramente (3 pts)
+12. Selecionou a primeira loja sugerida (5 pts)
+13. Explicou link de acompanhamento (3 pts)
 14. Informou prazo de retorno e validade da OS (5 pts)
-15. Registrou a ligação corretamente no mesmo pedido (5 pts)
+15. Registrou corretamente no mesmo pedido (5 pts)
 16. Tabulação correta com código correspondente (5 pts)
-17. Fez encerramento com todas as orientações finais (10 pts)
-18. Informou sobre pesquisa de satisfação (CSAT) (6 pts)
+17. Encerramento com todas as orientações finais (10 pts)
+18. Informou sobre pesquisa de satisfação (6 pts)
 
-Apresente sua análise em formato JSON, com a seguinte estrutura:
-{
-    "temperatura": {
-        "classificacao": "classificação aqui",
-        "justificativa": "justificativa aqui"
-    },
-    "impacto_comercial": {
-        "percentual": número aqui,
-        "faixa": "faixa aqui com emoji",
-        "justificativa": "justificativa aqui"
-    },
-    "status_final": {
-        "satisfacao": "satisfeito/não satisfeito",
-        "risco": "descrição do risco",
-        "desfecho": "resolvido/pendente/insatisfatório"
-    },
-    "checklist": [
-        {
-            "item": 1,
-            "criterio": "Saudação inicial adequada",
-            "pontos": 10,
-            "resposta": "Sim/Não",
-            "justificativa": "justificativa aqui"
-        },
-        ...continuar para todos os 18 itens
-    ],
-    "pontuacao_total": número aqui,
-    "resumo_geral": "resumo textual da análise completa"
-}
+Formato de resposta: JSON estruturado conforme abaixo e **não adicione comentários fora do JSON**:
+
+{{
+  "temperatura": {{"classificacao": "...", "justificativa": "..."}},
+  "impacto_comercial": {{"percentual": ..., "faixa": "...", "justificativa": "..."}},
+  "status_final": {{"satisfacao": "...", "risco": "...", "desfecho": "..."}},
+  "checklist": [
+    {{"item": 1, "criterio": "...", "pontos": ..., "resposta": "...", "justificativa": "..."}},
+    ...
+  ],
+  "pontuacao_total": ...,
+  "resumo_geral": "..."
+}}
 """
 
-        # Análise com GPT-4
         with st.spinner("Analisando a conversa..."):
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "Você é um analista especializado em avaliar atendimentos telefônicos."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                response_format={"type": "json_object"}
-            )
-            analysis_text = response.choices[0].message.content
-            
             try:
-                # Converter para JSON
+                response = client.chat.completions.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "Você é um analista especializado em avaliar atendimentos telefônicos."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3
+                )
+                analysis_text = response.choices[0].message.content.strip()
+
+                # Valida se o retorno é JSON
+                if not analysis_text.startswith("{"):
+                    raise ValueError("Resposta fora do formato JSON")
+
                 analysis = json.loads(analysis_text)
-                
-                # Exibir resultados
-                st.header("📊 Resultados da Análise")
-                
-                # Temperatura Emocional
+
+                # Temperatura
                 st.subheader("🌡️ Temperatura Emocional")
-                temp_class = analysis['temperatura']['classificacao']
-                temp_emoji = {
-                    'Calma': '😌',
-                    'Neutra': '😐',
-                    'Tensa': '😟',
-                    'Muito Tensa': '😡'
-                }.get(temp_class, '❓')
-                
+                temp = analysis.get("temperatura", {})
+                temp_class = temp.get("classificacao", "Desconhecida")
+                temp_emoji = {'Calma': '😌', 'Neutra': '😐', 'Tensa': '😟', 'Muito Tensa': '😡'}.get(temp_class, '❓')
                 st.markdown(f"### {temp_class} {temp_emoji}")
-                st.markdown(f"**Justificativa**: {analysis['temperatura']['justificativa']}")
-                
+                st.markdown(f"**Justificativa:** {temp.get('justificativa', 'Não informada')}")
+
                 # Impacto Comercial
                 st.subheader("💼 Impacto Comercial")
-                impact_pct = analysis['impacto_comercial']['percentual']
-                impact_range = analysis['impacto_comercial']['faixa']
-                
-                # Remover possíveis caracteres não numéricos
-                if isinstance(impact_pct, str):
-                    impact_pct = float(re.sub(r'[^\d.]', '', impact_pct))
-                
-                st.progress(int(impact_pct) / 100)
-                st.markdown(f"### {int(impact_pct)}% - {impact_range}")
-                st.markdown(f"**Justificativa**: {analysis['impacto_comercial']['justificativa']}")
-                
+                impacto = analysis.get("impacto_comercial", {})
+                pct = float(re.sub(r'[^\d.]', '', str(impacto.get("percentual", "0"))))
+                if 0 <= pct <= 100:
+                    st.progress(pct / 100)
+                st.markdown(f"### {int(pct)}% - {impacto.get('faixa', '')}")
+                st.markdown(f"**Justificativa:** {impacto.get('justificativa', 'Não informada')}")
+
                 # Status Final
-                st.subheader("📋 Status Final do Atendimento")
-                satisfacao = analysis['status_final']['satisfacao']
-                desfecho = analysis['status_final']['desfecho']
-                risco = analysis['status_final']['risco']
-                
-                satisfacao_emoji = '😊' if 'satisfeito' in satisfacao.lower() else '☹️'
-                
+                st.subheader("📋 Status Final")
+                status = analysis.get("status_final", {})
                 st.markdown(f"""
-                <div class="status-box">
-                    <strong>Cliente</strong>: {satisfacao} {satisfacao_emoji}<br>
-                    <strong>Desfecho</strong>: {desfecho}<br>
-                    <strong>Risco</strong>: {risco}
-                </div>
+                    <div class="status-box">
+                    <strong>Cliente:</strong> {status.get("satisfacao", '')}<br>
+                    <strong>Desfecho:</strong> {status.get("desfecho", '')}<br>
+                    <strong>Risco:</strong> {status.get("risco", '')}
+                    </div>
                 """, unsafe_allow_html=True)
-                
-                # Pontuação do Checklist
-                st.subheader("🏆 Checklist Técnico")
-                total_pts = analysis['pontuacao_total']
-                if isinstance(total_pts, str):
-                    total_pts = float(re.sub(r'[^\d.]', '', total_pts))
-                    
-                st.progress(int(total_pts) / 100)
+
+                # Checklist
+                st.subheader("✅ Checklist Técnico")
+                checklist = analysis.get("checklist", [])
+                total_pts = float(re.sub(r'[^\d.]', '', str(analysis.get("pontuacao_total", 0))))
+                st.progress(min(total_pts / 100, 1))
                 st.markdown(f"### {int(total_pts)} pontos de 100")
-                
-                # Exibir itens do checklist em forma de lista expandível
-                with st.expander("Ver detalhes do checklist"):
-                    for item in analysis['checklist']:
-                        item_num = item['item']
-                        criterio = item['criterio']
-                        pontos = item['pontos']
-                        resposta = item['resposta']
-                        justificativa = item['justificativa']
-                        
-                        if resposta == 'Sim':
-                            st.markdown(f"✅ **{item_num}. {criterio}** ({pontos} pts) - {justificativa}")
-                        else:
-                            st.markdown(f"❌ **{item_num}. {criterio}** (0 pts) - {justificativa}")
-                
-                # Resumo Geral
+
+                with st.expander("Ver Detalhes do Checklist"):
+                    for item in checklist:
+                        icone = "✅" if item.get("resposta", "").lower() == "sim" else "❌"
+                        st.markdown(f"{icone} **{item['item']}. {item['criterio']}** ({item['pontos']} pts) – {item['justificativa']}")
+
+                # Resumo
                 st.subheader("📝 Resumo Geral")
-                st.markdown(f"<div class='result-box'>{analysis['resumo_geral']}</div>", unsafe_allow_html=True)
-                
+                st.markdown(f"<div class='result-box'>{analysis.get('resumo_geral', '')}</div>", unsafe_allow_html=True)
+
             except Exception as e:
-                st.error(f"Erro ao processar a análise: {str(e)}")
-                st.text(analysis_text)
+                st.error("❌ Ocorreu um erro na análise. Verifique se a resposta do modelo está no formato JSON válido.")
+                st.text_area("Conteúdo recebido do modelo:", value=response.choices[0].message.content, height=300)
