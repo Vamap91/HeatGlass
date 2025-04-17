@@ -1,7 +1,3 @@
-@@ -1,133 +1,90 @@
- # ==============================
- # 🔧 IMPORTAÇÕES
- # ==============================
  import streamlit as st
  import openai
  from openai import OpenAI
