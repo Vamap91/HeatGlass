@@ -103,15 +103,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Inicializa o cliente OpenAI
-# Verifica se estamos no ambiente Streamlit Cloud (que usa st.secrets)
-# ou em desenvolvimento local (que usa variáveis de ambiente)
-if 'OPENAI_API_KEY' in st.secrets:
-    openai_api_key = st.secrets['OPENAI_API_KEY']
-else:
-    openai_api_key = os.environ.get('OPENAI_API_KEY')
-
-client = OpenAI(api_key=openai_api_key)
+# Inicialização do cliente OpenAI
+# Correção para lidar com a chave da API no Streamlit Cloud
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except (KeyError, TypeError):
+    st.error("❌ Erro: Chave da API OpenAI não encontrada. Verifique as configurações no Streamlit Cloud.")
+    st.info("ℹ️ No Streamlit Cloud, vá para 'Settings' > 'Secrets' e adicione a chave da API com o nome 'OPENAI_API_KEY'.")
+    st.stop()
 
 # Função para gerar um gráfico de barras para o checklist
 def generate_checklist_chart(checklist_items):
@@ -174,15 +173,20 @@ if page == "Análise de Áudio":
         if analyze_button:
             # Transcrição com Whisper
             with st.spinner("Transcrevendo o áudio..."):
-                with open(tmp_path, "rb") as audio_file:
-                    transcript = client.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_file
-                    )
-                transcript_text = transcript.text
-            
-            with st.expander("Ver transcrição completa"):
-                st.code(transcript_text, language="markdown")
+                try:
+                    with open(tmp_path, "rb") as audio_file:
+                        transcript = client.audio.transcriptions.create(
+                            model="whisper-1",
+                            file=audio_file
+                        )
+                    transcript_text = transcript.text
+                    
+                    with st.expander("Ver transcrição completa"):
+                        st.code(transcript_text, language="markdown")
+                except Exception as e:
+                    st.error(f"❌ Erro na transcrição: {str(e)}")
+                    st.info("ℹ️ Verifique se o arquivo de áudio está em formato válido e se a chave da API está correta.")
+                    st.stop()
             
             # Prompt estruturado conforme o documento de requisitos
             prompt = f"""
@@ -268,18 +272,18 @@ if page == "Análise de Áudio":
 
             # Análise com GPT-4
             with st.spinner("Analisando a conversa..."):
-                response = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[
-                        {"role": "system", "content": "Você é um analista especializado em avaliar atendimentos telefônicos."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.3,
-                    response_format={"type": "json_object"}
-                )
-                analysis_text = response.choices[0].message.content
-                
                 try:
+                    response = client.chat.completions.create(
+                        model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": "Você é um analista especializado em avaliar atendimentos telefônicos."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.3,
+                        response_format={"type": "json_object"}
+                    )
+                    analysis_text = response.choices[0].message.content
+                    
                     # Converter para JSON
                     analysis = json.loads(analysis_text)
                     
@@ -413,8 +417,10 @@ if page == "Análise de Áudio":
                             st.info("Função de envio por e-mail será implementada aqui")
                 
                 except Exception as e:
-                    st.error(f"Erro ao processar a análise: {e}")
-                    st.code(analysis_text)
+                    st.error(f"❌ Erro ao processar a análise: {str(e)}")
+                    st.info("ℹ️ Detalhes técnicos do erro:")
+                    st.code(str(e))
+                    st.info("ℹ️ Se o erro persistir, verifique a conexão com a API OpenAI e tente novamente.")
 
 elif page == "Histórico":
     st.title("📚 Histórico de Análises")
