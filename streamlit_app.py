@@ -103,14 +103,50 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Inicialização do cliente OpenAI
-# Correção para lidar com a chave da API no Streamlit Cloud
+# Sidebar
+st.sidebar.image("https://via.placeholder.com/200x100.png?text=HeatGlass", width=200)
+st.sidebar.title("HeatGlass")
+st.sidebar.markdown("### Análise Inteligente de Atendimento")
+
+# Configuração da API Key
+if 'api_key_set' not in st.session_state:
+    st.session_state.api_key_set = False
+
+# Tenta obter a API key dos secrets
+api_key = None
 try:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-except (KeyError, TypeError):
-    st.error("❌ Erro: Chave da API OpenAI não encontrada. Verifique as configurações no Streamlit Cloud.")
-    st.info("ℹ️ No Streamlit Cloud, vá para 'Settings' > 'Secrets' e adicione a chave da API com o nome 'OPENAI_API_KEY'.")
+    api_key = st.secrets["OPENAI_API_KEY"]
+    st.session_state.api_key_set = True
+except:
+    # Verifica se já foi definida na sessão
+    if "OPENAI_API_KEY" in st.session_state and st.session_state["OPENAI_API_KEY"]:
+        api_key = st.session_state["OPENAI_API_KEY"]
+        st.session_state.api_key_set = True
+
+# Interface para inserir a API key manualmente se não estiver nos secrets
+if not st.session_state.api_key_set:
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("⚠️ Configuração Necessária")
+    api_key_input = st.sidebar.text_input("OpenAI API Key", type="password")
+    
+    if st.sidebar.button("Salvar API Key"):
+        if api_key_input.strip():
+            api_key = api_key_input
+            st.session_state["OPENAI_API_KEY"] = api_key
+            st.session_state.api_key_set = True
+            st.sidebar.success("✅ API Key configurada com sucesso!")
+            st.experimental_rerun()
+        else:
+            st.sidebar.error("⚠️ Por favor, insira uma API Key válida")
+
+# Se a API key ainda não foi configurada, mostra mensagem e para a execução
+if not st.session_state.api_key_set:
+    st.warning("⚠️ API Key da OpenAI não configurada. Por favor, configure a chave na barra lateral para continuar.")
+    st.info("ℹ️ Se você estiver no Streamlit Cloud, também pode configurar a chave via 'Settings' > 'Secrets'")
     st.stop()
+
+# Inicializa o cliente OpenAI com a chave configurada
+client = OpenAI(api_key=api_key)
 
 # Função para gerar um gráfico de barras para o checklist
 def generate_checklist_chart(checklist_items):
@@ -142,11 +178,6 @@ def generate_checklist_chart(checklist_items):
     
     plt.tight_layout()
     return fig
-
-# Sidebar
-st.sidebar.image("https://via.placeholder.com/200x100.png?text=HeatGlass", width=200)
-st.sidebar.title("HeatGlass")
-st.sidebar.markdown("### Análise Inteligente de Atendimento")
 
 # Opções de navegação
 page = st.sidebar.radio("Navegação", ["Análise de Áudio", "Histórico", "Configurações"])
@@ -439,12 +470,35 @@ elif page == "Histórico":
 
 elif page == "Configurações":
     st.title("⚙️ Configurações")
-    st.info("O módulo de configurações está em desenvolvimento. Aqui serão disponibilizadas opções para personalizar a análise, definir parâmetros de IA, e gerenciar integrações com outros sistemas.")
+    
+    # Seção de configuração da API
+    st.subheader("🔑 Configuração da API OpenAI")
+    if st.session_state.api_key_set:
+        st.success("✅ API Key da OpenAI configurada com sucesso!")
+        if st.button("Alterar API Key"):
+            st.session_state.api_key_set = False
+            st.experimental_rerun()
+    else:
+        with st.form("api_config_form"):
+            api_key_input = st.text_input("OpenAI API Key", type="password")
+            submit = st.form_submit_button("Salvar API Key")
+            if submit:
+                if api_key_input.strip():
+                    st.session_state["OPENAI_API_KEY"] = api_key_input
+                    st.session_state.api_key_set = True
+                    st.success("✅ API Key configurada com sucesso!")
+                    st.experimental_rerun()
+                else:
+                    st.error("⚠️ Por favor, insira uma API Key válida")
+    
+    st.markdown("---")
+    
+    # Outras configurações
+    st.info("Configurações adicionais estão em desenvolvimento. Aqui serão disponibilizadas opções para personalizar a análise, definir parâmetros de IA, e gerenciar integrações com outros sistemas.")
     
     # Mockup de configurações
     with st.form("config_form"):
         st.subheader("Configurações de IA")
-        api_key = st.text_input("OpenAI API Key", value="••••••••••••••••••••••••", type="password")
         model = st.selectbox("Modelo de IA", ["GPT-4", "GPT-3.5 Turbo"])
         temperature = st.slider("Temperatura da IA", min_value=0.0, max_value=1.0, value=0.3, step=0.1)
         
