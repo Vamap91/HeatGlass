@@ -67,8 +67,11 @@ if uploaded_file is not None:
 
         prompt = f"""
 Você é um especialista em atendimento ao cliente. Avalie a transcrição a seguir:
+
 TRANSCRIÇÃO:
+"""
 {transcript_text}
+"""
 
 Retorne um JSON com os seguintes campos:
 - temperatura emocional (classificacao + justificativa)
