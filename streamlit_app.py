@@ -4,6 +4,7 @@ import tempfile
 import re
 import json
 import logging
+import os
 from typing import Dict, List, Any, Tuple, Optional, Union
 
 # Configuração de logging
@@ -68,20 +69,47 @@ class OpenAIManager:
             response = self.client.chat.completions.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "Você é um analista especializado em atendimento."},
+                    {"role": "system", "content": "Você é um analista especializado em atendimento. Responda apenas com JSON válido."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3
+                temperature=0.3,
+                response_format={"type": "json_object"}
             )
             
             result = response.choices[0].message.content.strip()
             
-            if not result.startswith("{"):
-                raise ValueError("Formato de resposta inválido")
+            # Tenta limpar o resultado antes de fazer o parse
+            # Remove possíveis caracteres não-JSON no início e fim
+            result = result.strip()
+            if result.startswith("```json"):
+                result = result.replace("```json", "", 1)
+            if result.endswith("```"):
+                result = result.rsplit("```", 1)[0]
+            result = result.strip()
+            
+            # Verifica se o resultado é um JSON válido
+            try:
+                return json.loads(result)
+            except json.JSONDecodeError as json_err:
+                logger.error(f"Erro no parsing JSON: {str(json_err)}")
                 
-            return json.loads(result)
+                # Tenta uma abordagem alternativa - extrair apenas a parte JSON
+                import re
+                json_pattern = r'({[\s\S]*})'
+                match = re.search(json_pattern, result)
+                if match:
+                    json_str = match.group(1)
+                    return json.loads(json_str)
+                else:
+                    raise ValueError(f"Não foi possível extrair JSON válido da resposta: {result[:100]}...")
+                
         except Exception as e:
             logger.error(f"Erro na análise: {str(e)}")
+            # Salva a resposta bruta para depuração
+            if 'result' in locals():
+                with open('/tmp/debug_response.txt', 'w') as f:
+                    f.write(result)
+                logger.error(f"Resposta salva em /tmp/debug_response.txt")
             raise Exception(f"Falha ao analisar a transcrição: {str(e)}")
     
     def _create_analysis_prompt(self, transcript_text: str) -> str:
@@ -708,7 +736,15 @@ class HeatGlassApp:
                 if 'response' in locals():
                     self.ui.render_raw_response(response.choices[0].message.content.strip())
             except:
-                pass
+                # Verifica se existe arquivo de debug
+                try:
+                    if os.path.exists('/tmp/debug_response.txt'):
+                        with open('/tmp/debug_response.txt', 'r') as f:
+                            debug_content = f.read()
+                        self.ui.render_raw_response(f"Resposta da API (para depuração):\n{debug_content}")
+                except Exception as debug_err:
+                    logger.error(f"Erro ao ler arquivo de debug: {str(debug_err)}")
+                    pass
 
 # Ponto de entrada da aplicação
 if __name__ == "__main__":
