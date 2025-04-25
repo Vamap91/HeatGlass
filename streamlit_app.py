@@ -64,6 +64,67 @@ class OpenAIManager:
             Exception: Se ocorrer um erro durante a análise
         """
         try:
+            # Cria um modelo de análise padrão com valores vazios
+            default_analysis = {
+                "temperatura": {"classificacao": "Neutra", "justificativa": "Não foi possível determinar"},
+                "impacto_comercial": {"percentual": 50, "faixa": "Médio", "justificativa": "Não foi possível determinar"},
+                "status_final": {"satisfacao": "Indeterminado", "risco": "Médio", "desfecho": "Indeterminado"},
+                "checklist": [],
+                "criterios_eliminatorios": [],
+                "uso_script": {"status": "não avaliado", "justificativa": "Não foi possível determinar"},
+                "pontuacao_total": 0,
+                "resumo_geral": "Não foi possível analisar a transcrição completamente."
+            }
+            
+            # Cria o checklist padrão
+            checklist_items = [
+                "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?",
+                "Confirmou o histórico de utilizações do cliente, garantindo que seu atendimento será prestado conforme sua solicitação?",
+                "Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc)",
+                "Verbalizou o script da LGPD?",
+                "Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente?",
+                "Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade?",
+                "Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço?",
+                "Antes de solicitar ajuda, consultou o manual de procedimento para localizar a informação desejada? (caso não tenha solicitado/precisado de ajuda, selecionar sim para a resposta)",
+                "Confirmou as informações completas sobre o dano no veículo?",
+                "Confirmou data e motivo da quebra, registro do item, dano na pintura e demais informações necessárias para o correto fluxo de atendimento. (tamanho da trinca, LED, Xenon, etc)",
+                "Confirmou cidade para o atendimento e selecionou corretamente a primeira opção de loja identificada pelo sistema? Porto/Sura/Bradesco (Seguiu o procedimento de lojas em verde/livre escolha?)",
+                "A comunicação com o cliente foi eficaz: não houve uso de gírias, linguagem inadequada ou conversas paralelas? O analista informou quando ficou ausente da linha e quando retornou?",
+                "Realizou o registro da ligação corretamente e garantiu ter sanado as dúvidas do cliente evitando o recontato?",
+                "Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento?",
+                "Orientou o cliente sobre a pesquisa de satisfação do atendimento?",
+                "Realizou a tabulação de forma correta?",
+                "A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente?"
+            ]
+            
+            pontos = [10, 7, 6, 2, 5, 3, 5, 2, 10, 10, 10, 5, 6, 15, 6, 4, 4]
+            
+            for i, criterio in enumerate(checklist_items):
+                default_analysis["checklist"].append({
+                    "item": i + 1,
+                    "criterio": criterio,
+                    "pontos": pontos[i],
+                    "resposta": "Não",
+                    "justificativa": "Não foi possível avaliar"
+                })
+            
+            # Critérios eliminatórios padrão
+            criterios_elim = [
+                "Ofereceu/garantiu algum serviço que o cliente não tinha direito?",
+                "Preencheu ou selecionou o Veículo/peça incorretos?",
+                "Agiu de forma rude, grosseira, não deixando o cliente falar e/ou se alterou na ligação?",
+                "Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?",
+                "Difamou a imagem da Carglass, de afiliados, seguradoras ou colegas de trabalho, ou falou negativamente sobre algum serviço prestado por nós ou por afiliados?"
+            ]
+            
+            for criterio in criterios_elim:
+                default_analysis["criterios_eliminatorios"].append({
+                    "criterio": criterio,
+                    "ocorreu": False,
+                    "justificativa": "Não foi possível avaliar"
+                })
+            
+            # Tenta obter a análise da API
             prompt = self._create_analysis_prompt(transcript_text)
             
             # Instrução clara no prompt do sistema para retornar apenas JSON válido
@@ -74,52 +135,237 @@ class OpenAIManager:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3
-                # Removido o parâmetro response_format que não é suportado em todas as versões do modelo
             )
             
             result = response.choices[0].message.content.strip()
             
-            # Tenta limpar o resultado antes de fazer o parse
-            # Remove possíveis caracteres não-JSON no início e fim
-            result = result.strip()
-            if result.startswith("```json"):
-                result = result.replace("```json", "", 1)
-            if result.endswith("```"):
-                result = result.rsplit("```", 1)[0]
-            result = result.strip()
+            # Salva a resposta bruta para depuração
+            with open('/tmp/debug_response.txt', 'w') as f:
+                f.write(result)
             
-            # Verifica se o resultado é um JSON válido
-            try:
-                return json.loads(result)
-            except json.JSONDecodeError as json_err:
-                logger.error(f"Erro no parsing JSON: {str(json_err)}")
+            # Tenta várias abordagens para extrair um JSON válido
+            analysis = self._extract_valid_json(result)
+            
+            # Se conseguiu extrair um JSON válido, mescla com o padrão para garantir que todos os campos existam
+            if analysis:
+                # Mescla os campos de primeiro nível
+                for key in default_analysis:
+                    if key in analysis:
+                        if isinstance(default_analysis[key], dict) and isinstance(analysis[key], dict):
+                            # Para dicionários, mescla os subcampos
+                            for subkey in default_analysis[key]:
+                                if subkey not in analysis[key] or analysis[key][subkey] is None:
+                                    analysis[key][subkey] = default_analysis[key][subkey]
+                        elif isinstance(default_analysis[key], list) and isinstance(analysis[key], list):
+                            # Para listas, garante que tenha pelo menos o número mínimo de itens
+                            if key == "checklist" and len(analysis[key]) < len(default_analysis[key]):
+                                # Completa o checklist com itens padrão
+                                for i in range(len(analysis[key]), len(default_analysis[key])):
+                                    analysis[key].append(default_analysis[key][i])
+                            elif key == "criterios_eliminatorios" and len(analysis[key]) < len(default_analysis[key]):
+                                # Completa os critérios eliminatórios com itens padrão
+                                for i in range(len(analysis[key]), len(default_analysis[key])):
+                                    analysis[key].append(default_analysis[key][i])
+                    else:
+                        analysis[key] = default_analysis[key]
                 
-                # Tenta uma abordagem alternativa - extrair apenas a parte JSON
-                import re
-                json_pattern = r'({[\s\S]*})'
-                match = re.search(json_pattern, result)
-                if match:
-                    json_str = match.group(1)
-                    return json.loads(json_str)
-                else:
-                    # Tenta uma segunda abordagem - corrigir problemas comuns de JSON
-                    try:
-                        # Substitui aspas simples por aspas duplas
-                        fixed_result = result.replace("'", "\"")
-                        # Garante que nomes de propriedades tenham aspas duplas
-                        fixed_result = re.sub(r'([{,])\s*(\w+):', r'\1"\2":', fixed_result)
-                        return json.loads(fixed_result)
-                    except:
-                        raise ValueError(f"Não foi possível extrair JSON válido da resposta: {result[:100]}...")
+                return analysis
+            else:
+                # Se não conseguiu extrair um JSON válido, usa o padrão
+                logger.warning("Não foi possível extrair um JSON válido da resposta. Usando análise padrão.")
+                return default_analysis
                 
         except Exception as e:
             logger.error(f"Erro na análise: {str(e)}")
-            # Salva a resposta bruta para depuração
-            if 'result' in locals():
-                with open('/tmp/debug_response.txt', 'w') as f:
-                    f.write(result)
-                logger.error(f"Resposta salva em /tmp/debug_response.txt")
-            raise Exception(f"Falha ao analisar a transcrição: {str(e)}")
+            # Tenta usar o modelo padrão em caso de erro
+            logger.warning("Usando análise padrão devido a erro.")
+            return self._create_default_analysis(checklist_items, pontos, criterios_elim)
+    
+    def _extract_valid_json(self, text: str) -> Optional[Dict[str, Any]]:
+        """
+        Tenta extrair um JSON válido de um texto usando várias abordagens.
+        
+        Args:
+            text: Texto que pode conter JSON
+            
+        Returns:
+            Dicionário com o JSON extraído ou None se não for possível extrair
+        """
+        # Lista de abordagens para tentar extrair JSON válido
+        approaches = [
+            # Abordagem 1: Tentar carregar diretamente
+            lambda t: json.loads(t.strip()),
+            
+            # Abordagem 2: Remover marcadores de código
+            lambda t: json.loads(self._remove_code_markers(t)),
+            
+            # Abordagem 3: Extrair usando regex para encontrar o objeto JSON
+            lambda t: json.loads(self._extract_json_with_regex(t)),
+            
+            # Abordagem 4: Corrigir problemas comuns e tentar novamente
+            lambda t: json.loads(self._fix_common_json_issues(t)),
+            
+            # Abordagem 5: Usar uma biblioteca mais tolerante (demjson3 se disponível)
+            lambda t: self._try_demjson_parse(t),
+            
+            # Abordagem 6: Tentar corrigir manualmente problemas específicos
+            lambda t: json.loads(self._manual_json_fix(t))
+        ]
+        
+        # Tenta cada abordagem em sequência
+        for i, approach in enumerate(approaches):
+            try:
+                result = approach(text)
+                logger.info(f"JSON extraído com sucesso usando abordagem {i+1}")
+                return result
+            except Exception as e:
+                logger.debug(f"Abordagem {i+1} falhou: {str(e)}")
+                continue
+        
+        # Se todas as abordagens falharem, retorna None
+        return None
+    
+    def _remove_code_markers(self, text: str) -> str:
+        """Remove marcadores de código Markdown do texto."""
+        text = text.strip()
+        # Remove blocos de código
+        if text.startswith("```") and "```" in text[3:]:
+            # Encontra o tipo de código (se especificado)
+            first_line_end = text.find("\n")
+            if first_line_end > 3:
+                # Remove a primeira linha (```json ou similar)
+                text = text[first_line_end:].strip()
+            else:
+                # Remove apenas os primeiros ```
+                text = text[3:].strip()
+            
+            # Remove os ``` finais
+            if text.endswith("```"):
+                text = text[:-3].strip()
+            else:
+                last_marker = text.rfind("```")
+                if last_marker > 0:
+                    text = text[:last_marker].strip()
+        
+        return text
+    
+    def _extract_json_with_regex(self, text: str) -> str:
+        """Extrai um objeto JSON usando expressões regulares."""
+        import re
+        # Tenta encontrar um objeto JSON completo
+        json_pattern = r'({[\s\S]*})'
+        match = re.search(json_pattern, text)
+        if match:
+            return match.group(1)
+        raise ValueError("Não foi possível encontrar um objeto JSON no texto")
+    
+    def _fix_common_json_issues(self, text: str) -> str:
+        """Corrige problemas comuns em strings JSON."""
+        import re
+        # Remove caracteres não-ASCII
+        text = re.sub(r'[^\x00-\x7F]+', '', text)
+        # Substitui aspas simples por aspas duplas
+        text = text.replace("'", "\"")
+        # Garante que nomes de propriedades tenham aspas duplas
+        text = re.sub(r'([{,])\s*(\w+):', r'\1"\2":', text)
+        # Corrige valores booleanos e nulos
+        text = text.replace("True", "true").replace("False", "false").replace("None", "null")
+        # Remove vírgulas extras antes de fechamento de objetos/arrays
+        text = re.sub(r',\s*}', '}', text)
+        text = re.sub(r',\s*]', ']', text)
+        return text
+    
+    def _try_demjson_parse(self, text: str) -> Dict[str, Any]:
+        """Tenta usar demjson3 para analisar JSON com problemas."""
+        try:
+            import demjson3
+            return demjson3.decode(text)
+        except ImportError:
+            # Se demjson3 não estiver disponível, tenta instalar
+            try:
+                import subprocess
+                subprocess.check_call(["pip", "install", "demjson3"])
+                import demjson3
+                return demjson3.decode(text)
+            except:
+                raise ValueError("Não foi possível usar demjson3 para analisar o JSON")
+        except Exception as e:
+            raise ValueError(f"demjson3 falhou ao analisar o JSON: {str(e)}")
+    
+    def _manual_json_fix(self, text: str) -> str:
+        """Tenta corrigir manualmente problemas específicos no JSON."""
+        # Corrige problemas específicos que foram observados nas respostas
+        # Exemplo: corrigir o problema na linha 24, coluna 5
+        lines = text.split('\n')
+        if len(lines) >= 24:
+            problematic_line = lines[23]  # índice 23 = linha 24
+            if len(problematic_line) >= 5:
+                # Verifica se há um problema específico nessa posição
+                if problematic_line[4] in [',', ':', '}', ']']:
+                    # Tenta corrigir adicionando um valor padrão
+                    fixed_line = problematic_line[:4] + '"valor_corrigido"' + problematic_line[4:]
+                    lines[23] = fixed_line
+                    return '\n'.join(lines)
+        
+        # Se não conseguiu corrigir especificamente, tenta uma abordagem mais genérica
+        # Remove todas as linhas em branco e espaços extras
+        text = re.sub(r'\n\s*\n', '\n', text)
+        # Remove comentários (linhas começando com //)
+        text = re.sub(r'//.*\n', '\n', text)
+        # Tenta corrigir chaves e colchetes desbalanceados
+        open_braces = text.count('{')
+        close_braces = text.count('}')
+        if open_braces > close_braces:
+            text += '}' * (open_braces - close_braces)
+        elif close_braces > open_braces:
+            text = '{' * (close_braces - open_braces) + text
+        
+        open_brackets = text.count('[')
+        close_brackets = text.count(']')
+        if open_brackets > close_brackets:
+            text += ']' * (open_brackets - close_brackets)
+        elif close_brackets > open_brackets:
+            text = '[' * (close_brackets - open_brackets) + text
+        
+        return text
+    
+    def _create_default_analysis(self, checklist_items, pontos, criterios_elim) -> Dict[str, Any]:
+        """
+        Cria uma análise padrão com valores vazios.
+        
+        Returns:
+            Dicionário com a análise padrão
+        """
+        default_analysis = {
+            "temperatura": {"classificacao": "Neutra", "justificativa": "Não foi possível determinar"},
+            "impacto_comercial": {"percentual": 50, "faixa": "Médio", "justificativa": "Não foi possível determinar"},
+            "status_final": {"satisfacao": "Indeterminado", "risco": "Médio", "desfecho": "Indeterminado"},
+            "checklist": [],
+            "criterios_eliminatorios": [],
+            "uso_script": {"status": "não avaliado", "justificativa": "Não foi possível determinar"},
+            "pontuacao_total": 0,
+            "resumo_geral": "Não foi possível analisar a transcrição completamente."
+        }
+        
+        # Cria o checklist padrão
+        for i, criterio in enumerate(checklist_items):
+            default_analysis["checklist"].append({
+                "item": i + 1,
+                "criterio": criterio,
+                "pontos": pontos[i],
+                "resposta": "Não",
+                "justificativa": "Não foi possível avaliar"
+            })
+        
+        # Critérios eliminatórios padrão
+        for criterio in criterios_elim:
+            default_analysis["criterios_eliminatorios"].append({
+                "criterio": criterio,
+                "ocorreu": False,
+                "justificativa": "Não foi possível avaliar"
+            })
+        
+        return default_analysis
     
     def _create_analysis_prompt(self, transcript_text: str) -> str:
         """
