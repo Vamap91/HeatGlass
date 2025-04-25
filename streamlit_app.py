@@ -66,14 +66,15 @@ class OpenAIManager:
         try:
             prompt = self._create_analysis_prompt(transcript_text)
             
+            # Instrução clara no prompt do sistema para retornar apenas JSON válido
             response = self.client.chat.completions.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "Você é um analista especializado em atendimento. Responda apenas com JSON válido."},
+                    {"role": "system", "content": "Você é um analista especializado em atendimento. Responda apenas com JSON válido, sem texto adicional, sem marcadores de código, apenas o objeto JSON puro."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3,
-                response_format={"type": "json_object"}
+                temperature=0.3
+                # Removido o parâmetro response_format que não é suportado em todas as versões do modelo
             )
             
             result = response.choices[0].message.content.strip()
@@ -101,7 +102,15 @@ class OpenAIManager:
                     json_str = match.group(1)
                     return json.loads(json_str)
                 else:
-                    raise ValueError(f"Não foi possível extrair JSON válido da resposta: {result[:100]}...")
+                    # Tenta uma segunda abordagem - corrigir problemas comuns de JSON
+                    try:
+                        # Substitui aspas simples por aspas duplas
+                        fixed_result = result.replace("'", "\"")
+                        # Garante que nomes de propriedades tenham aspas duplas
+                        fixed_result = re.sub(r'([{,])\s*(\w+):', r'\1"\2":', fixed_result)
+                        return json.loads(fixed_result)
+                    except:
+                        raise ValueError(f"Não foi possível extrair JSON válido da resposta: {result[:100]}...")
                 
         except Exception as e:
             logger.error(f"Erro na análise: {str(e)}")
