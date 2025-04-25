@@ -252,8 +252,19 @@ Responda apenas com o JSON e nada mais.
                 )
                 result = response.choices[0].message.content.strip()
 
+                # Debugar o resultado para identificar problemas
+                with st.expander("Debug - Resposta JSON (expandir em caso de erro)"):
+                    st.code(result, language="json")
+                
+                # Limpar o resultado para ter certeza que começa com {
                 if not result.startswith("{"):
-                    raise ValueError("Formato de resposta inválido")
+                    # Tenta encontrar o JSON na resposta
+                    json_start = result.find("{")
+                    json_end = result.rfind("}")
+                    if json_start >= 0 and json_end >= 0:
+                        result = result[json_start:json_end+1]
+                    else:
+                        raise ValueError("Formato de resposta inválido")
 
                 analysis = json.loads(result)
 
@@ -261,8 +272,30 @@ Responda apenas com o JSON e nada mais.
                 st.subheader("🌡️ Temperatura Emocional")
                 temp = analysis.get("temperatura", {})
                 temp_class = temp.get("classificacao", "Desconhecida")
-                emoji = {'Calma': '😌', 'Neutra': '😐', 'Tensa': '😟', 'Muito Tensa': '😡'}.get(temp_class, '❓')
-                temp_class_style = get_temp_class(temp_class)
+                
+                # Mapeamento expandido de temperaturas emocionais
+                emoji_map = {
+                    'Calma': '😌', 
+                    'Neutra': '😐', 
+                    'Tensa': '😟', 
+                    'Muito Tensa': '😡',
+                    'Quente': '🔥',  # Adicionado novo status
+                    'Fria': '❄️'     # Adicionado novo status
+                }
+                emoji = emoji_map.get(temp_class, '❓')
+                
+                # Mapeamento para cores de temperatura
+                if temp_class == "Calma" or temp_class == "Fria":
+                    temp_class_style = "temperature-calm"
+                elif temp_class == "Neutra":
+                    temp_class_style = "temperature-neutral"
+                elif temp_class == "Tensa" or temp_class == "Quente":
+                    temp_class_style = "temperature-tense"
+                elif temp_class == "Muito Tensa":
+                    temp_class_style = "temperature-very-tense"
+                else:
+                    temp_class_style = ""
+                    
                 st.markdown(f"<h3 class='{temp_class_style}'>{temp_class} {emoji}</h3>", unsafe_allow_html=True)
                 st.markdown(f"**Justificativa:** {temp.get('justificativa')}")
 
@@ -326,24 +359,35 @@ Responda apenas com o JSON e nada mais.
                 st.markdown(f"<h3 class='{progress_class}'>{int(total)} pontos de 100</h3>", unsafe_allow_html=True)
 
                 with st.expander("Ver Detalhes do Checklist"):
+                    # Mostra apenas os primeiros itens se a lista for muito longa
                     for item in checklist:
-                        resposta = item.get("resposta", "").lower()
-                        if resposta == "sim":
-                            classe = "criterio-sim"
-                            icone = "✅"
-                        elif "parcial" in resposta:
-                            classe = "criterio-parcial"
-                            icone = "⚠️"
-                        else:
-                            classe = "criterio-nao"
-                            icone = "❌"
-                        
-                        st.markdown(f"""
-                        <div class="{classe}">
-                        {icone} <strong>{item['item']}. {item['criterio']}</strong> ({item['pontos']} pts)<br>
-                        <em>{item['justificativa']}</em>
-                        </div>
-                        """, unsafe_allow_html=True)
+                        try:
+                            # Garantir que todos os campos existam, mesmo que vazios
+                            item_num = item.get('item', '')
+                            criterio = item.get('criterio', '')
+                            pontos = item.get('pontos', 0)
+                            resposta = str(item.get('resposta', '')).lower()
+                            justificativa = item.get('justificativa', '')
+                            
+                            if resposta == "sim":
+                                classe = "criterio-sim"
+                                icone = "✅"
+                            elif "parcial" in resposta:
+                                classe = "criterio-parcial"
+                                icone = "⚠️"
+                            else:
+                                classe = "criterio-nao"
+                                icone = "❌"
+                            
+                            st.markdown(f"""
+                            <div class="{classe}">
+                            {icone} <strong>{item_num}. {criterio}</strong> ({pontos} pts)<br>
+                            <em>{justificativa}</em>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        except Exception as item_error:
+                            st.warning(f"Não foi possível exibir um item do checklist: {str(item_error)}")
+                            st.write(item)
 
                 # Resumo
                 st.subheader("📝 Resumo Geral")
@@ -351,4 +395,7 @@ Responda apenas com o JSON e nada mais.
 
             except Exception as e:
                 st.error(f"Erro ao processar a análise: {str(e)}")
-                st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
+                try:
+                    st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
+                except:
+                    st.text_area("Não foi possível recuperar a resposta da IA", height=300)
