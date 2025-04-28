@@ -3,12 +3,125 @@ from openai import OpenAI
 import tempfile
 import re
 import json
+import base64
+from datetime import datetime
+from fpdf import FPDF
 
 # Inicializa o novo cliente da OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Configurações da página
 st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
+
+# Função para criar PDF
+def create_pdf(analysis, transcript_text, model_name):
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Configurações de fonte
+    pdf.set_font("Arial", "B", 16)
+    
+    # Cabeçalho
+    pdf.set_fill_color(193, 0, 0)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(0, 10, "HeatGlass - Relatório de Atendimento", 1, 1, "C", True)
+    pdf.ln(5)
+    
+    # Informações gerais
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, f"Data da análise: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
+    pdf.cell(0, 10, f"Modelo utilizado: {model_name}", 0, 1)
+    pdf.ln(5)
+    
+    # Temperatura Emocional
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Temperatura Emocional", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    temp = analysis.get("temperatura", {})
+    pdf.cell(0, 10, f"Classificação: {temp.get('classificacao', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {temp.get('justificativa', 'N/A')}")
+    pdf.ln(5)
+    
+    # Impacto Comercial
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Impacto Comercial", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    impact = analysis.get("impacto_comercial", {})
+    pdf.cell(0, 10, f"Percentual: {impact.get('percentual', 'N/A')}% - {impact.get('faixa', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {impact.get('justificativa', 'N/A')}")
+    pdf.ln(5)
+    
+    # Status Final
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Status Final", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    final = analysis.get("status_final", {})
+    pdf.cell(0, 10, f"Cliente: {final.get('satisfacao', 'N/A')}", 0, 1)
+    pdf.cell(0, 10, f"Desfecho: {final.get('desfecho', 'N/A')}", 0, 1)
+    pdf.cell(0, 10, f"Risco: {final.get('risco', 'N/A')}", 0, 1)
+    pdf.ln(5)
+    
+    # Script de Encerramento
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Script de Encerramento", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    script_info = analysis.get("uso_script", {})
+    pdf.cell(0, 10, f"Status: {script_info.get('status', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {script_info.get('justificativa', 'N/A')}")
+    pdf.ln(5)
+    
+    # Pontuação Total
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Pontuação Total", 0, 1)
+    pdf.set_font("Arial", "B", 12)
+    total = analysis.get("pontuacao_total", "N/A")
+    pdf.cell(0, 10, f"{total} pontos de 100", 0, 1)
+    pdf.ln(5)
+    
+    # Resumo Geral
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Resumo Geral", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    pdf.multi_cell(0, 10, analysis.get("resumo_geral", "N/A"))
+    pdf.ln(5)
+    
+    # Checklist (nova página)
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Checklist Técnico", 0, 1)
+    pdf.ln(5)
+    
+    # Itens do checklist
+    checklist = analysis.get("checklist", [])
+    for item in checklist:
+        item_num = item.get('item', '')
+        criterio = item.get('criterio', '')
+        pontos = item.get('pontos', 0)
+        resposta = str(item.get('resposta', ''))
+        justificativa = item.get('justificativa', '')
+        
+        pdf.set_font("Arial", "B", 12)
+        pdf.multi_cell(0, 10, f"{item_num}. {criterio} ({pontos} pts)")
+        pdf.set_font("Arial", "", 12)
+        pdf.cell(0, 10, f"Resposta: {resposta}", 0, 1)
+        pdf.multi_cell(0, 10, f"Justificativa: {justificativa}")
+        pdf.ln(5)
+    
+    # Transcrição na última página
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Transcrição da Ligação", 0, 1)
+    pdf.set_font("Arial", "", 10)
+    pdf.multi_cell(0, 10, transcript_text)
+    
+    return pdf.output(dest="S").encode("latin1")
+
+# Função para criar link de download do PDF
+def get_pdf_download_link(pdf_bytes, filename):
+    b64 = base64.b64encode(pdf_bytes).decode()
+    href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}">Baixar Relatório em PDF</a>'
+    return href
 
 # Estilo visual
 st.markdown("""
@@ -82,6 +195,13 @@ h1, h2, h3 {
     margin-bottom: 5px;
     border-left: 5px solid #FFD700;
 }
+.criterio-nao-verificavel {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    border-left: 5px solid #808080;
+}
 .temperature-calm {
     color: #00C100;
     font-size: 1.5em;
@@ -153,6 +273,19 @@ def get_script_status_class(status):
 st.title("HeatGlass")
 st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento.")
 
+# Seleção do modelo GPT
+col1, col2 = st.columns(2)
+with col1:
+    modelo_gpt = st.selectbox(
+        "Selecione o modelo de IA:",
+        ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"],
+        index=0
+    )
+    
+with col2:
+    st.write("")  # Espaço em branco para alinhar com o campo acima
+    st.write("O modelo selecionado afeta a qualidade da análise.")
+
 # Upload de áudio
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
 
@@ -178,19 +311,21 @@ if uploaded_file is not None:
 
         # Prompt
         prompt = f"""
-Você é um especialista em atendimento ao cliente. Avalie a transcrição a seguir:
+Você é um especialista em atendimento ao cliente. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
 
 TRANSCRIÇÃO:
 \"\"\"{transcript_text}\"\"\"
 
+IMPORTANTE: Você está avaliando SOMENTE o áudio da ligação. NÃO tem acesso à tela do atendente e NÃO pode ver suas ações no sistema. Para itens que exigem visualização da tela (como "realizou tabulação", "selecionou loja corretamente"), responda "Não Verificável".
+
 Retorne um JSON com os seguintes campos:
 
 {{
-  "temperatura": {{"classificacao": "...", "justificativa": "..."}},
-  "impacto_comercial": {{"percentual": ..., "faixa": "...", "justificativa": "..."}},
-  "status_final": {{"satisfacao": "...", "risco": "...", "desfecho": "..."}},
+  "temperatura": {{"classificacao": "Calma/Neutra/Tensa/Muito Tensa", "justificativa": "..."}},
+  "impacto_comercial": {{"percentual": ..., "faixa": "Baixo/Moderado/Alto", "justificativa": "..."}},
+  "status_final": {{"satisfacao": "Satisfeito/Parcialmente Satisfeito/Insatisfeito", "risco": "Baixo/Médio/Alto", "desfecho": "Positivo/Neutro/Negativo"}},
   "checklist": [
-    {{"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": 10, "resposta": "...", "justificativa": "..."}},
+    {{"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": 10, "resposta": "Sim/Parcial/Não/Não Verificável", "justificativa": "..."}},
     ...
   ],
   "criterios_eliminatorios": [
@@ -203,30 +338,23 @@ Retorne um JSON com os seguintes campos:
 }}
 
 Checklist (100 pts totais):
-1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 pts)
-2. Confirmou o histórico de utilizações do cliente, garantindo que seu atendimento será prestado conforme sua solicitação? (7 pts)
-3. Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc) (6 pts)
-4. Verbalizou o script da LGPD? (2 pts)
-5. Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente? (5 pts)
-6. Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade? (3 pts)
-7. Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço? (5 pts)
-8. Antes de solicitar ajuda, consultou o manual de procedimento para localizar a informação desejada? (caso não tenha solicitado/precisado de ajuda, selecionar sim para a resposta) (2 pts)
-9. Confirmou as informações completas sobre o dano no veículo? (10 pts)
-10. Confirmou data e motivo da quebra, registro do item, dano na pintura e demais informações necessárias para o correto fluxo de atendimento. (tamanho da trinca, LED, Xenon, etc) (10 pts)
-11. Confirmou cidade para o atendimento e selecionou corretamente a primeira opção de loja identificada pelo sistema? Porto/Sura/Bradesco (Seguiu o procedimento de lojas em verde/livre escolha?) (10 pts)
-12. A comunicação com o cliente foi eficaz: não houve uso de gírias, linguagem inadequada ou conversas paralelas? O analista informou quando ficou ausente da linha e quando retornou? (5 pts)
-13. Realizou o registro da ligação corretamente e garantiu ter sanado as dúvidas do cliente evitando o recontato? (6 pts)
-14. Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 pts)
-15. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 pts)
-16. Realizou a tabulação de forma correta? (4 pts)
-17. A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente? (4 pts)
-
-Critérios Eliminatórios (0 pontos em cada caso):
-- Ofereceu/garantiu algum serviço que o cliente não tinha direito?
-- Preencheu ou selecionou o Veículo/peça incorretos?
-- Agiu de forma rude, grosseira, não deixando o cliente falar e/ou se alterou na ligação?
-- Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
-- Difamou a imagem da Carglass, de afiliados, seguradoras ou colegas de trabalho, ou falou negativamente sobre algum serviço prestado por nós ou por afiliados?
+1. Atendeu a ligação prontamente e utilizou a saudação correta? (10 pts)
+2. Confirmou verbalmente o histórico de utilizações do cliente? (7 pts)
+3. Solicitou verbalmente 2 telefones para contato e confirmou outros dados? (6 pts)
+4. Verbalizou COMPLETAMENTE o script da LGPD? (2 pts) - Script LGPD: "Informo que seus dados pessoais serão tratados para a finalidade específica de prestação dos serviços contratados, incluindo os dados sensíveis, se necessário, conforme a Lei Geral de Proteção de Dados. Podemos compartilhar seus dados com parceiros comerciais envolvidos na prestação dos nossos serviços."
+5. Utilizou a técnica do eco para confirmar informações coletadas? (5 pts)
+6. Escutou atentamente, evitando solicitações em duplicidade? (3 pts)
+7. Demonstrou verbalmente domínio sobre o produto/serviço? (5 pts)
+8. Se precisou de ajuda, mencionou consulta ao manual? (Se não precisou, marque "Sim") (2 pts)
+9. Confirmou verbalmente informações completas sobre o dano no veículo? (10 pts)
+10. Confirmou verbalmente data e motivo da quebra e demais detalhes do dano? (10 pts)
+11. Confirmou verbalmente cidade para atendimento e discutiu opções de loja? (10 pts)
+12. Comunicação eficaz, sem gírias, informando ausências na linha? (5 pts)
+13. Verificou verbalmente se dúvidas foram sanadas? (6 pts)
+14. Realizou o script de encerramento completo? (15 pts)
+15. Orientou verbalmente sobre a pesquisa de satisfação? (6 pts)
+16. Mencionou verbalmente que estava realizando o registro/tabulação? (4 pts) - Se não mencionou, marque "Não Verificável"
+17. Demonstrou conduta acolhedora, com empatia e desejo de ajudar? (4 pts)
 
 O script correto para a pergunta 14 é:
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
@@ -235,15 +363,24 @@ O script correto para a pergunta 14 é:
 *Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?*
 *Agradeço o seu contato, tenha um excelente dia!"*
 
-Avalie se o script acima foi utilizado completamente, parcialmente ou não foi utilizado.
+Critérios Eliminatórios (0 pontos em cada caso):
+- Ofereceu/garantiu verbalmente algum serviço que o cliente não tinha direito?
+- Mencionou verbalmente informações incorretas sobre veículo/peça?
+- Agiu de forma rude, grosseira, não deixando o cliente falar?
+- Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
+- Falou negativamente sobre a Carglass, afiliados, seguradoras ou colegas?
 
-Responda apenas com o JSON e nada mais.
+DIRETRIZES IMPORTANTES:
+1. Para itens que NÃO podem ser verificados somente pelo áudio (ações no sistema), classifique como "Não Verificável" e NÃO atribua pontos.
+2. Avalie o script LGPD com rigor - ele deve ser dito COMPLETAMENTE.
+3. Avalie o script de encerramento verificando se todos os elementos foram mencionados.
+4. Responda apenas com o JSON, sem texto adicional.
 """
 
-        with st.spinner("Analisando a conversa..."):
+        with st.spinner(f"Analisando a conversa com {modelo_gpt}..."):
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4",
+                    model=modelo_gpt,
                     messages=[
                         {"role": "system", "content": "Você é um analista especializado em atendimento."},
                         {"role": "user", "content": prompt}
@@ -375,6 +512,9 @@ Responda apenas com o JSON e nada mais.
                             elif "parcial" in resposta:
                                 classe = "criterio-parcial"
                                 icone = "⚠️"
+                            elif "não verificável" in resposta:
+                                classe = "criterio-nao-verificavel"
+                                icone = "❔"
                             else:
                                 classe = "criterio-nao"
                                 icone = "❌"
@@ -392,6 +532,16 @@ Responda apenas com o JSON e nada mais.
                 # Resumo
                 st.subheader("📝 Resumo Geral")
                 st.markdown(f"<div class='result-box'>{analysis.get('resumo_geral')}</div>", unsafe_allow_html=True)
+                
+                # Gerar PDF
+                st.subheader("📄 Relatório em PDF")
+                try:
+                    pdf_bytes = create_pdf(analysis, transcript_text, modelo_gpt)
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    filename = f"HeatGlass_Relatorio_{timestamp}.pdf"
+                    st.markdown(get_pdf_download_link(pdf_bytes, filename), unsafe_allow_html=True)
+                except Exception as pdf_error:
+                    st.error(f"Erro ao gerar PDF: {str(pdf_error)}")
 
             except Exception as e:
                 st.error(f"Erro ao processar a análise: {str(e)}")
