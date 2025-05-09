@@ -311,70 +311,150 @@ if uploaded_file is not None:
 
         # Prompt
         prompt = f"""
-Você é um especialista em atendimento ao cliente. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
+```
+Você é um especialista em avaliação de atendimento ao cliente para a Carglass. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
 
 TRANSCRIÇÃO:
-\"\"\"{transcript_text}\"\"\"
+"""${transcript_text}"""
 
 IMPORTANTE: Você está avaliando SOMENTE o áudio da ligação. NÃO tem acesso à tela do atendente e NÃO pode ver suas ações no sistema. Para itens que exigem visualização da tela (como "realizou tabulação", "selecionou loja corretamente"), responda "Não Verificável".
 
+INSTRUÇÕES CRÍTICAS:
+1. Avalie SOMENTE o que é explicitamente verificável na transcrição.
+2. A pontuação DEVE refletir exatamente os critérios cumpridos ou não cumpridos.
+3. Sempre que um item for marcado como "Não" ou "Não Verificável", atribua 0 pontos.
+4. Quando um item for marcado como "Parcial", atribua metade dos pontos disponíveis.
+5. Calcule a pontuação total como a soma exata dos pontos obtidos, sem arredondamentos.
+6. Use APENAS as classificações permitidas para cada campo.
+
 Retorne um JSON com os seguintes campos:
 
-{{
-  "temperatura": {{"classificacao": "Calma/Neutra/Tensa/Muito Tensa", "justificativa": "..."}},
-  "impacto_comercial": {{"percentual": ..., "faixa": "Baixo/Moderado/Alto", "justificativa": "..."}},
-  "status_final": {{"satisfacao": "Satisfeito/Parcialmente Satisfeito/Insatisfeito", "risco": "Baixo/Médio/Alto", "desfecho": "Positivo/Neutro/Negativo"}},
+{
+  "temperatura": {"classificacao": "Calma/Neutra/Tensa/Muito Tensa", "justificativa": "..."},
+  "impacto_comercial": {"percentual": [0-100], "faixa": "Baixo/Moderado/Alto", "justificativa": "..."},
+  "status_final": {"satisfacao": "Satisfeito/Parcialmente Satisfeito/Insatisfeito", "risco": "Baixo/Médio/Alto", "desfecho": "Positivo/Neutro/Negativo"},
   "checklist": [
-    {{"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": 10, "resposta": "Sim/Parcial/Não/Não Verificável", "justificativa": "..."}},
+    {"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": [valor numérico], "resposta": "Sim/Parcial/Não/Não Verificável", "justificativa": "..."},
     ...
   ],
   "criterios_eliminatorios": [
-    {{"criterio": "Ofereceu/garantiu algum serviço que o cliente não tinha direito?", "ocorreu": true/false, "justificativa": "..."}},
+    {"criterio": "Ofereceu/garantiu algum serviço que o cliente não tinha direito?", "ocorreu": true/false, "justificativa": "..."},
     ...
   ],
-  "uso_script": {{"status": "completo/parcial/não utilizado", "justificativa": "..."}},
-  "pontuacao_total": ...,
+  "uso_script": {"status": "completo/parcial/não utilizado", "justificativa": "..."},
+  "pontuacao_total": [soma exata dos pontos],
   "resumo_geral": "..."
-}}
+}
 
-Checklist (100 pts totais):
+CHECKLIST DETALHADO (Total: 100 pontos):
 1. Atendeu a ligação prontamente e utilizou a saudação correta? (10 pts)
-2. Confirmou verbalmente o histórico de utilizações do cliente? (7 pts)
-3. Solicitou verbalmente 2 telefones para contato e confirmou outros dados? (6 pts)
-4. Verbalizou COMPLETAMENTE o script da LGPD? (2 pts) - Script LGPD: "Informo que seus dados pessoais serão tratados para a finalidade específica de prestação dos serviços contratados, incluindo os dados sensíveis, se necessário, conforme a Lei Geral de Proteção de Dados. Podemos compartilhar seus dados com parceiros comerciais envolvidos na prestação dos nossos serviços."
-5. Utilizou a técnica do eco para confirmar informações coletadas? (5 pts)
-6. Escutou atentamente, evitando solicitações em duplicidade? (3 pts)
-7. Demonstrou verbalmente domínio sobre o produto/serviço? (5 pts)
-8. Se precisou de ajuda, mencionou consulta ao manual? (Se não precisou, marque "Sim") (2 pts)
-9. Confirmou verbalmente informações completas sobre o dano no veículo? (10 pts)
-10. Confirmou verbalmente data e motivo da quebra e demais detalhes do dano? (10 pts)
-11. Confirmou verbalmente cidade para atendimento e discutiu opções de loja? (10 pts)
-12. Comunicação eficaz, sem gírias, informando ausências na linha? (5 pts)
-13. Verificou verbalmente se dúvidas foram sanadas? (6 pts)
-14. Realizou o script de encerramento completo? (15 pts)
-15. Orientou verbalmente sobre a pesquisa de satisfação? (6 pts)
-16. Mencionou verbalmente que estava realizando o registro/tabulação? (4 pts) - Se não mencionou, marque "Não Verificável"
-17. Demonstrou conduta acolhedora, com empatia e desejo de ajudar? (4 pts)
+   - "Sim" (10 pts): Saudação completa com nome e empresa, seguida de oferta de ajuda
+   - "Parcial" (5 pts): Saudação incompleta 
+   - "Não" (0 pts): Sem saudação adequada
 
-O script correto para a pergunta 14 é:
+2. Confirmou verbalmente o histórico de utilizações do cliente? (7 pts)
+   - "Sim" (7 pts): Mencionou ou perguntou diretamente sobre histórico de utilizações
+   - "Não" (0 pts): Não mencionou histórico de utilização
+
+3. Solicitou verbalmente 2 telefones para contato e confirmou outros dados? (6 pts)
+   - "Sim" (6 pts): Solicitou explicitamente dois números de telefone diferentes
+   - "Parcial" (3 pts): Solicitou apenas um telefone ou não confirmou segundo número
+   - "Não" (0 pts): Não solicitou número de telefone
+
+4. Verbalizou COMPLETAMENTE o script da LGPD? (2 pts)
+   - "Sim" (2 pts): Mencionou tratamento de dados pessoais conforme LGPD e compartilhamento
+   - "Não" (0 pts): Não mencionou LGPD ou mencionou apenas parcialmente
+   - Script LGPD referência: "Informo que seus dados pessoais serão tratados para a finalidade específica de prestação dos serviços contratados, incluindo os dados sensíveis, se necessário, conforme a Lei Geral de Proteção de Dados. Podemos compartilhar seus dados com parceiros comerciais envolvidos na prestação dos nossos serviços."
+
+5. Utilizou a técnica do eco para confirmar informações coletadas? (5 pts)
+   - "Sim" (5 pts): Repetiu informações fornecidas pelo cliente para confirmar
+   - "Parcial" (2.5 pts): Usou a técnica parcialmente, apenas com algumas informações
+   - "Não" (0 pts): Não repetiu informações para confirmar
+
+6. Escutou atentamente, evitando solicitações em duplicidade? (3 pts)
+   - "Sim" (3 pts): Não pediu a mesma informação mais de uma vez sem justificativa
+   - "Não" (0 pts): Solicitou a mesma informação repetidamente
+
+7. Demonstrou verbalmente domínio sobre o produto/serviço? (5 pts)
+   - "Sim" (5 pts): Explicou procedimentos com segurança e conhecimento
+   - "Parcial" (2.5 pts): Demonstrou conhecimento limitado ou insegurança
+   - "Não" (0 pts): Demonstrou falta de conhecimento ou forneceu informações incorretas
+
+8. Se precisou de ajuda, mencionou consulta ao manual? (2 pts)
+   - "Sim" (2 pts): Mencionou consulta ao manual OU não precisou de ajuda
+   - "Não" (0 pts): Precisou de ajuda e não mencionou consulta ao manual
+   - "Não Verificável" (0 pts): Não é possível determinar se precisou de ajuda
+
+9. Confirmou verbalmente informações completas sobre o dano no veículo? (10 pts)
+   - "Sim" (10 pts): Perguntou sobre detalhes específicos do dano (localização, tamanho, etc.)
+   - "Parcial" (5 pts): Perguntou apenas informações básicas sobre o dano
+   - "Não" (0 pts): Não perguntou detalhes sobre o dano
+
+10. Confirmou verbalmente data e motivo da quebra e demais detalhes do dano? (10 pts)
+    - "Sim" (10 pts): Perguntou especificamente sobre quando e como ocorreu o dano
+    - "Parcial" (5 pts): Perguntou apenas data OU motivo, mas não ambos
+    - "Não" (0 pts): Não perguntou sobre data e motivo
+
+11. Confirmou verbalmente cidade para atendimento e discutiu opções de loja? (10 pts)
+    - "Sim" (10 pts): Confirmou a cidade E discutiu opções de lojas
+    - "Parcial" (5 pts): Confirmou apenas a cidade sem discutir opções
+    - "Não" (0 pts): Não confirmou cidade nem discutiu opções
+
+12. Comunicação eficaz, sem gírias, informando ausências na linha? (5 pts)
+    - "Sim" (5 pts): Comunicação clara, profissional e informou ausências
+    - "Parcial" (2.5 pts): Comunicação geralmente boa, mas com falhas pontuais
+    - "Não" (0 pts): Uso de gírias ou não informou ausências na linha
+
+13. Verificou verbalmente se dúvidas foram sanadas? (6 pts)
+    - "Sim" (6 pts): Perguntou explicitamente se havia mais dúvidas/questões
+    - "Não" (0 pts): Não verificou se o cliente tinha mais dúvidas
+
+14. Realizou o script de encerramento completo? (15 pts)
+    - "Sim" (15 pts): Utilizou TODOS os elementos do script
+    - "Parcial" (7.5 pts): Utilizou parte do script (pelo menos 3 elementos)
+    - "Não" (0 pts): Utilizou menos de 3 elementos do script
+    - Elementos do script:
+      a) Informou sobre o envio de links no WhatsApp
+      b) Mencionou sobre a franquia a ser paga
+      c) Perguntou se poderia ajudar com mais alguma coisa
+      d) Mencionou a pesquisa de satisfação
+      e) Agradeceu e desejou bom dia/tarde/noite
+
+15. Orientou verbalmente sobre a pesquisa de satisfação? (6 pts)
+    - "Sim" (6 pts): Mencionou explicitamente a pesquisa e a nota máxima
+    - "Parcial" (3 pts): Mencionou a pesquisa sem explicar a nota máxima
+    - "Não" (0 pts): Não mencionou a pesquisa de satisfação
+
+16. Mencionou verbalmente que estava realizando o registro/tabulação? (4 pts)
+    - "Sim" (4 pts): Mencionou explicitamente que estava registrando/tabulando
+    - "Não" (0 pts): Não mencionou registro/tabulação
+    - "Não Verificável" (0 pts): Impossível determinar apenas pelo áudio
+
+17. Demonstrou conduta acolhedora, com empatia e desejo de ajudar? (4 pts)
+    - "Sim" (4 pts): Tom acolhedor, expressões de cortesia, sem interrupções
+    - "Parcial" (2 pts): Comportamento misto, com momentos de empatia e outros de frieza
+    - "Não" (0 pts): Tom frio, interruptions frequentes, falta de empatia
+
+SCRIPT DE ENCERRAMENTO COMPLETO (referência para item 14):
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
 *Lembrando que o seu atendimento tem uma franquia de XXX que deverá ser paga no ato do atendimento. (****acessórios/RRSM ****- tem uma franquia que será confirmada após a vistoria).*
 *Te ajudo com algo mais?*
 *Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?*
 *Agradeço o seu contato, tenha um excelente dia!"*
 
-Critérios Eliminatórios (0 pontos em cada caso):
+CRITÉRIOS ELIMINATÓRIOS (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu verbalmente algum serviço que o cliente não tinha direito?
 - Mencionou verbalmente informações incorretas sobre veículo/peça?
 - Agiu de forma rude, grosseira, não deixando o cliente falar?
 - Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
 - Falou negativamente sobre a Carglass, afiliados, seguradoras ou colegas?
 
-DIRETRIZES IMPORTANTES:
-1. Para itens que NÃO podem ser verificados somente pelo áudio (ações no sistema), classifique como "Não Verificável" e NÃO atribua pontos.
-2. Avalie o script LGPD com rigor - ele deve ser dito COMPLETAMENTE.
-3. Avalie o script de encerramento verificando se todos os elementos foram mencionados.
-4. Responda apenas com o JSON, sem texto adicional.
+DIRETRIZES FINAIS:
+1. Para itens que NÃO podem ser verificados somente pelo áudio (ações no sistema), classifique como "Não Verificável" e atribua 0 pontos.
+2. Avalie o script LGPD com rigor - ele deve ser mencionado COMPLETAMENTE para pontuar.
+3. Na avaliação do script de encerramento, verifique se todos os elementos foram mencionados.
+4. CALCULE a pontuação total somando exatamente os pontos atribuídos, sem arredondamentos.
+5. Responda APENAS com o JSON, sem texto adicional antes ou depois.
 """
 
         with st.spinner(f"Analisando a conversa com {modelo_gpt}..."):
