@@ -315,7 +315,7 @@ if uploaded_file is not None:
 Você é um especialista em avaliação de atendimento ao cliente para a Carglass. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
 
 TRANSCRIÇÃO:
-"""${transcript_text}"""
+\"\"\"{transcript_text}\"\"\"
 
 IMPORTANTE: Você está avaliando SOMENTE o áudio da ligação. NÃO tem acesso à tela do atendente e NÃO pode ver suas ações no sistema. Para itens que exigem visualização da tela (como "realizou tabulação", "selecionou loja corretamente"), responda "Não Verificável".
 
