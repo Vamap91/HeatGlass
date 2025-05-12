@@ -31,7 +31,7 @@ def create_pdf(analysis, transcript_text, model_name):
     # Informações gerais
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, f"Data da análise: {datetime.now().strftime("%d/%m/%Y %H:%M")}", 0, 1)
+    pdf.cell(0, 10, f"Data da análise: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
     pdf.cell(0, 10, f"Modelo utilizado: {model_name}", 0, 1)
     pdf.ln(5)
     
