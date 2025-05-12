@@ -310,12 +310,14 @@ if uploaded_file is not None:
             st.code(transcript_text, language="markdown")
 
         # Definição do prompt
+        # O problema estava no formato de string com chaves {transcript_text} 
+        # que é interpretado erroneamente pela função format().
+        # Usando string normal e substituindo diretamente:
         prompt_template = """
-        ```
         Você é um especialista em avaliação de atendimento ao cliente para a Carglass. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
 
         TRANSCRIÇÃO:
-        \"\"\"{transcript_text}\"\"\"
+        \"\"\"{}\"\"\"
 
         IMPORTANTE: Você está avaliando SOMENTE o áudio da ligação. NÃO tem acesso à tela do atendente e NÃO pode ver suas ações no sistema. Para itens que exigem visualização da tela (como "realizou tabulação", "selecionou loja corretamente"), responda "Não Verificável".
 
@@ -456,8 +458,18 @@ if uploaded_file is not None:
         4. CALCULE a pontuação total somando exatamente os pontos atribuídos, sem arredondamentos.
         5. Responda APENAS com o JSON, sem texto adicional antes ou depois.
         """
-        # Substitui a variável transcript_text no prompt
-        prompt = prompt_template.format(transcript_text=transcript_text)
+        
+        # Formas seguras de formatar strings em Python (CORRIGIDO):
+        # Opção 1: Usando o método format sem placeholders nomeados
+        prompt = prompt_template.format(transcript_text)
+        
+        # Opção 2 (alternativa): Usando f-string
+        # prompt = f"""
+        # Você é um especialista em avaliação de atendimento...
+        # TRANSCRIÇÃO:
+        # \"\"\"{transcript_text}\"\"\"
+        # ...
+        # """
 
         # Análise com GPT
         with st.spinner(f"Analisando a conversa com {modelo_gpt}..."):
@@ -547,7 +559,7 @@ if uploaded_file is not None:
                 
                 st.markdown(f"""
                 <div class="{script_class}">
-<strong>Status:</strong> {script_status}<br>
+                <strong>Status:</strong> {script_status}<br>
 <strong>Justificativa:</strong> {script_info.get("justificativa", "Não informado")}
 </div>
 """, unsafe_allow_html=True)
