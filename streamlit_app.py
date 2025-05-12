@@ -317,7 +317,7 @@ if uploaded_file is not None:
         Você é um especialista em avaliação de atendimento ao cliente para a Carglass. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
 
         TRANSCRIÇÃO:
-        \"\"\"{}\"\"\"
+        \"\"\"{{}}\"\"\"
 
         IMPORTANTE: Você está avaliando SOMENTE o áudio da ligação. NÃO tem acesso à tela do atendente e NÃO pode ver suas ações no sistema. Para itens que exigem visualização da tela (como "realizou tabulação", "selecionou loja corretamente"), responda "Não Verificável".
 
@@ -331,22 +331,22 @@ if uploaded_file is not None:
 
         Retorne um JSON com os seguintes campos:
 
-        {
-          "temperatura": {"classificacao": "Calma/Neutra/Tensa/Muito Tensa", "justificativa": "..."},
-          "impacto_comercial": {"percentual": [0-100], "faixa": "Baixo/Moderado/Alto", "justificativa": "..."},
-          "status_final": {"satisfacao": "Satisfeito/Parcialmente Satisfeito/Insatisfeito", "risco": "Baixo/Médio/Alto", "desfecho": "Positivo/Neutro/Negativo"},
+        {{
+          "temperatura": {{"classificacao": "Calma/Neutra/Tensa/Muito Tensa", "justificativa": "..."}},
+          "impacto_comercial": {{"percentual": [0-100], "faixa": "Baixo/Moderado/Alto", "justificativa": "..."}},
+          "status_final": {{"satisfacao": "Satisfeito/Parcialmente Satisfeito/Insatisfeito", "risco": "Baixo/Médio/Alto", "desfecho": "Positivo/Neutro/Negativo"}},
           "checklist": [
-            {"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": [valor numérico], "resposta": "Sim/Parcial/Não/Não Verificável", "justificativa": "..."},
+            {{"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": [valor numérico], "resposta": "Sim/Parcial/Não/Não Verificável", "justificativa": "..."}},
             ...
           ],
           "criterios_eliminatorios": [
-            {"criterio": "Ofereceu/garantiu algum serviço que o cliente não tinha direito?", "ocorreu": true/false, "justificativa": "..."},
+            {{"criterio": "Ofereceu/garantiu algum serviço que o cliente não tinha direito?", "ocorreu": true/false, "justificativa": "..."}},
             ...
           ],
-          "uso_script": {"status": "completo/parcial/não utilizado", "justificativa": "..."},
+          "uso_script": {{"status": "completo/parcial/não utilizado", "justificativa": "..."}},
           "pontuacao_total": [soma exata dos pontos],
           "resumo_geral": "..."
-        }
+        }}
 
         CHECKLIST DETALHADO (Total: 100 pontos):
         1. Atendeu a ligação prontamente e utilizou a saudação correta? (10 pts)
