@@ -310,7 +310,7 @@ if uploaded_file is not None:
             st.code(transcript_text, language="markdown")
 
         # Prompt
-        prompt = f"""
+prompt_template = """
 ```
 Você é um especialista em avaliação de atendimento ao cliente para a Carglass. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente:
 
