@@ -40,8 +40,8 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Temperatura Emocional", 0, 1)
     pdf.set_font("Arial", "", 12)
     temp = analysis.get("temperatura", {})
-    pdf.cell(0, 10, f"Classificação: {temp.get("classificacao", "N/A")}", 0, 1)
-    pdf.multi_cell(0, 10, f"Justificativa: {temp.get("justificativa", "N/A")}")
+    pdf.cell(0, 10, f"Classificação: {temp.get('classificacao', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {temp.get('justificativa', 'N/A')}")
     pdf.ln(5)
     
     # Impacto Comercial
@@ -49,8 +49,8 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Impacto Comercial", 0, 1)
     pdf.set_font("Arial", "", 12)
     impact = analysis.get("impacto_comercial", {})
-    pdf.cell(0, 10, f"Percentual: {impact.get("percentual", "N/A")}% - {impact.get("faixa", "N/A")}", 0, 1)
-    pdf.multi_cell(0, 10, f"Justificativa: {impact.get("justificativa", "N/A")}")
+    pdf.cell(0, 10, f"Percentual: {impact.get('percentual', 'N/A')}% - {impact.get('faixa', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {impact.get('justificativa', 'N/A')}")
     pdf.ln(5)
     
     # Status Final
@@ -58,9 +58,9 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Status Final", 0, 1)
     pdf.set_font("Arial", "", 12)
     final = analysis.get("status_final", {})
-    pdf.cell(0, 10, f"Cliente: {final.get("satisfacao", "N/A")}", 0, 1)
-    pdf.cell(0, 10, f"Desfecho: {final.get("desfecho", "N/A")}", 0, 1)
-    pdf.cell(0, 10, f"Risco: {final.get("risco", "N/A")}", 0, 1)
+    pdf.cell(0, 10, f"Cliente: {final.get('satisfacao', 'N/A')}", 0, 1)
+    pdf.cell(0, 10, f"Desfecho: {final.get('desfecho', 'N/A')}", 0, 1)
+    pdf.cell(0, 10, f"Risco: {final.get('risco', 'N/A')}", 0, 1)
     pdf.ln(5)
     
     # Script de Encerramento
@@ -68,8 +68,8 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Script de Encerramento", 0, 1)
     pdf.set_font("Arial", "", 12)
     script_info = analysis.get("uso_script", {})
-    pdf.cell(0, 10, f"Status: {script_info.get("status", "N/A")}", 0, 1)
-    pdf.multi_cell(0, 10, f"Justificativa: {script_info.get("justificativa", "N/A")}")
+    pdf.cell(0, 10, f"Status: {script_info.get('status', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {script_info.get('justificativa', 'N/A')}")
     pdf.ln(5)
     
     # Pontuação Total
@@ -96,11 +96,11 @@ def create_pdf(analysis, transcript_text, model_name):
     # Itens do checklist
     checklist = analysis.get("checklist", [])
     for item in checklist:
-        item_num = item.get("item", "")
-        criterio = item.get("criterio", "")
-        pontos = item.get("pontos", 0)
-        resposta = str(item.get("resposta", ""))
-        justificativa = item.get("justificativa", "")
+        item_num = item.get('item', '')
+        criterio = item.get('criterio', '')
+        pontos = item.get('pontos', 0)
+        resposta = str(item.get('resposta', ''))
+        justificativa = item.get('justificativa', '')
         
         pdf.set_font("Arial", "B", 12)
         pdf.multi_cell(0, 10, f"{item_num}. {criterio} ({pontos} pts)")
@@ -315,7 +315,7 @@ if uploaded_file is not None:
         Você é um especialista em avaliação de atendimento ao cliente para a Carglass. Avalie APENAS o que pode ser verificado pela transcrição do áudio a seguir, sem fazer suposições sobre o que aconteceu na tela do atendente.
 
         TRANSCRIÇÃO:
-        """__TRANSCRIPT_PLACEHOLDER__"""
+        __TRANSCRIPT_PLACEHOLDER__
 
         IMPORTANTE: Você está avaliando SOMENTE o áudio da ligação. NÃO tem acesso à tela do atendente e NÃO pode ver suas ações no sistema. Para itens que exigem visualização da tela (como "realizou tabulação", "selecionou loja corretamente"), responda "Não Verificável".
 
@@ -333,8 +333,7 @@ if uploaded_file is not None:
         {
           "temperatura": {
             "classificacao": "Calma/Neutra/Tensa/Muito Tensa", 
-            "justificativa": "[Avalie a temperatura emocional predominante da interação, considerando tanto as falas do cliente quanto as do atendente. Justifique sua classificação citando trechos específicos da transcrição que evidenciem o sentimento. Preste atenção especial a sinais de frustração, impaciência, sarcasmo, tom de voz elevado (inferido do texto), ou qualquer indicação de conflito ou desconforto. Ex: Cliente demonstrou impaciência ao dizer 
-álgo...". A atendente pareceu não compreender a solicitação inicial, levando a repetições.]",
+            "justificativa": "[Avalie a temperatura emocional predominante da interação, considerando tanto as falas do cliente quanto as do atendente. Justifique sua classificação citando trechos específicos da transcrição que evidenciem o sentimento. Preste atenção especial a sinais de frustração, impaciência, sarcasmo, tom de voz elevado (inferido do texto), ou qualquer indicação de conflito ou desconforto. Ex: Cliente demonstrou impaciência ao dizer 'algo...'. A atendente pareceu não compreender a solicitação inicial, levando a repetições.]",
             "definicoes_temperatura": {
                 "Calma": "Interação fluida, cordial, sem sinais de tensão, frustração ou discordância significativa. Cliente e atendente demonstram paciência e cooperação.",
                 "Neutra": "Interação predominantemente informativa, sem forte carga emocional positiva ou negativa. Pode haver pequenas dúvidas ou hesitações, mas sem escalada para conflito.",
@@ -351,8 +350,7 @@ if uploaded_file is not None:
             "satisfacao": "Satisfeito/Parcialmente Satisfeito/Insatisfeito", 
             "risco": "Baixo/Médio/Alto", 
             "desfecho": "Positivo/Neutro/Negativo",
-            "justificativa_satisfacao": "[Avalie o nível de satisfação do cliente ao final da interação, com base em suas declarações explícitas e implícitas, tom de voz (inferido) e a resolução (ou não) de seus problemas/questões. Justifique sua classificação com evidências da transcrição. Ex: Cliente afirmou 
-ão está tudo bem" e criticou a empresa.]",
+            "justificativa_satisfacao": "[Avalie o nível de satisfação do cliente ao final da interação, com base em suas declarações explícitas e implícitas, tom de voz (inferido) e a resolução (ou não) de seus problemas/questões. Justifique sua classificação com evidências da transcrição. Ex: Cliente afirmou 'não está tudo bem' e criticou a empresa.]",
             "definicoes_satisfacao": {
                 "Satisfeito": "Cliente expressa contentamento claro, agradece de forma genuína, e seus problemas parecem ter sido resolvidos a contento. Não há resquícios de frustração.",
                 "Parcialmente Satisfeito": "O problema principal pode ter sido encaminhado, mas o cliente ainda demonstra alguma hesitação, dúvida, ou resquício de insatisfação com parte do processo ou da interação. Pode haver agradecimentos protocolares, mas sem entusiasmo.",
@@ -476,27 +474,27 @@ if uploaded_file is not None:
                 # Exibição da Temperatura Emocional
                 temp_info = analysis_data.get("temperatura", {})
                 temp_class = get_temp_class(temp_info.get("classificacao", ""))
-                st.markdown(f"<div class=\"status-box\"><b>Temperatura Emocional:</b> <span class=\"{temp_class}\">{temp_info.get("classificacao", "N/A")}</span><br><b>Justificativa:</b> {temp_info.get("justificativa", "N/A")}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class=\"status-box\"><b>Temperatura Emocional:</b> <span class=\"{temp_class}\">{temp_info.get('classificacao', 'N/A')}</span><br><b>Justificativa:</b> {temp_info.get('justificativa', 'N/A')}</div>", unsafe_allow_html=True)
 
                 # Exibição do Impacto Comercial
                 impact_info = analysis_data.get("impacto_comercial", {})
-                st.markdown(f"<div class=\"status-box\"><b>Impacto Comercial:</b> {impact_info.get("percentual", "N/A")}% ({impact_info.get("faixa", "N/A")})<br><b>Justificativa:</b> {impact_info.get("justificativa", "N/A")}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class=\"status-box\"><b>Impacto Comercial:</b> {impact_info.get('percentual', 'N/A')}% ({impact_info.get('faixa', 'N/A')})<br><b>Justificativa:</b> {impact_info.get('justificativa', 'N/A')}</div>", unsafe_allow_html=True)
 
                 # Exibição do Status Final
                 final_info = analysis_data.get("status_final", {})
-                st.markdown(f"<div class=\"status-box\"><b>Status Final:</b><br>Satisfação do Cliente: {final_info.get("satisfacao", "N/A")}<br>Risco: {final_info.get("risco", "N/A")}<br>Desfecho: {final_info.get("desfecho", "N/A")}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class=\"status-box\"><b>Status Final:</b><br>Satisfação do Cliente: {final_info.get('satisfacao', 'N/A')}<br>Risco: {final_info.get('risco', 'N/A')}<br>Desfecho: {final_info.get('desfecho', 'N/A')}</div>", unsafe_allow_html=True)
 
                 # Exibição do Uso do Script de Encerramento
                 script_info = analysis_data.get("uso_script", {})
                 script_class = get_script_status_class(script_info.get("status", ""))
-                st.markdown(f"<div class=\"{script_class}\"><b>Uso do Script de Encerramento:</b> {script_info.get("status", "N/A")}<br><b>Justificativa:</b> {script_info.get("justificativa", "N/A")}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class=\"{script_class}\"><b>Uso do Script de Encerramento:</b> {script_info.get('status', 'N/A')}<br><b>Justificativa:</b> {script_info.get('justificativa', 'N/A')}</div>", unsafe_allow_html=True)
                 
                 # Exibição da Pontuação Total
                 total_score = analysis_data.get("pontuacao_total", "N/A")
                 st.markdown(f"<div class=\"status-box\"><b>Pontuação Total:</b> {total_score} / 100 pontos</div>", unsafe_allow_html=True)
 
                 # Exibição do Resumo Geral
-                st.markdown(f"<div class=\"result-box\"><b>Resumo Geral:</b><br>{analysis_data.get("resumo_geral", "N/A")}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class=\"result-box\"><b>Resumo Geral:</b><br>{analysis_data.get('resumo_geral', 'N/A')}</div>", unsafe_allow_html=True)
                 
                 # Exibição dos Critérios Eliminatórios
                 eliminatorios = analysis_data.get("criterios_eliminatorios", [])
@@ -504,7 +502,7 @@ if uploaded_file is not None:
                     st.subheader("Critérios Eliminatórios")
                     for criterio in eliminatorios:
                         ocorreu_text = "Sim" if criterio.get("ocorreu") else "Não"
-                        st.markdown(f"<div class=\"criterio-eliminatorio\"><b>Critério:</b> {criterio.get("criterio", "N/A")}<br><b>Ocorreu:</b> {ocorreu_text}<br><b>Justificativa:</b> {criterio.get("justificativa", "N/A")}</div>", unsafe_allow_html=True)
+                        st.markdown(f"<div class=\"criterio-eliminatorio\"><b>Critério:</b> {criterio.get('criterio', 'N/A')}<br><b>Ocorreu:</b> {ocorreu_text}<br><b>Justificativa:</b> {criterio.get('justificativa', 'N/A')}</div>", unsafe_allow_html=True)
                 
                 # Exibição do Checklist
                 st.subheader("Checklist Detalhado da Avaliação")
@@ -517,11 +515,11 @@ if uploaded_file is not None:
                     elif resposta.lower() == "parcial": item_class = "criterio-parcial"
                     elif resposta.lower() == "não verificável": item_class = "criterio-nao-verificavel"
                     
-                    st.markdown(f"<div class=\"{item_class}\"><b>Item {item.get("item", "")}:</b> {item.get("criterio", "N/A")} ({item.get("pontos", 0)} pts)<br><b>Resposta:</b> {resposta}<br><b>Justificativa:</b> {item.get("justificativa", "N/A")}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class=\"{item_class}\"><b>Item {item.get('item', '')}:</b> {item.get('criterio', 'N/A')} ({item.get('pontos', 0)} pts)<br><b>Resposta:</b> {resposta}<br><b>Justificativa:</b> {item.get('justificativa', 'N/A')}</div>", unsafe_allow_html=True)
 
                 # Geração e download do PDF
                 pdf_bytes = create_pdf(analysis_data, transcript_text, modelo_gpt)
-                st.markdown(get_pdf_download_link(pdf_bytes, f"Relatorio_HeatGlass_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf"), unsafe_allow_html=True)
+                st.markdown(get_pdf_download_link(pdf_bytes, f"Relatorio_HeatGlass_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"), unsafe_allow_html=True)
 
             except json.JSONDecodeError as e:
                 st.error(f"Erro ao decodificar a resposta JSON da IA: {e}")
@@ -534,4 +532,3 @@ if uploaded_file is not None:
     import os
     if os.path.exists(tmp_path):
         os.unlink(tmp_path)
-
