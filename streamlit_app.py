@@ -3,9 +3,125 @@ from openai import OpenAI
 import tempfile
 import re
 import json
+import base64
+from datetime import datetime
+from fpdf import FPDF
 
 # Inicializa o novo cliente da OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Configurações da página
+st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
+
+# Função para criar PDF
+def create_pdf(analysis, transcript_text, model_name):
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Configurações de fonte
+    pdf.set_font("Arial", "B", 16)
+    
+    # Cabeçalho
+    pdf.set_fill_color(193, 0, 0)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(0, 10, "HeatGlass - Relatório de Atendimento", 1, 1, "C", True)
+    pdf.ln(5)
+    
+    # Informações gerais
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, f"Data da análise: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
+    pdf.cell(0, 10, f"Modelo utilizado: {model_name}", 0, 1)
+    pdf.ln(5)
+    
+    # Temperatura Emocional
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Temperatura Emocional", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    temp = analysis.get("temperatura", {})
+    pdf.cell(0, 10, f"Classificação: {temp.get('classificacao', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {temp.get('justificativa', 'N/A')}")
+    pdf.ln(5)
+    
+    # Impacto Comercial
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Impacto Comercial", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    impact = analysis.get("impacto_comercial", {})
+    pdf.cell(0, 10, f"Percentual: {impact.get('percentual', 'N/A')}% - {impact.get('faixa', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {impact.get('justificativa', 'N/A')}")
+    pdf.ln(5)
+    
+    # Status Final
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Status Final", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    final = analysis.get("status_final", {})
+    pdf.cell(0, 10, f"Cliente: {final.get('satisfacao', 'N/A')}", 0, 1)
+    pdf.cell(0, 10, f"Desfecho: {final.get('desfecho', 'N/A')}", 0, 1)
+    pdf.cell(0, 10, f"Risco: {final.get('risco', 'N/A')}", 0, 1)
+    pdf.ln(5)
+    
+    # Script de Encerramento
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Script de Encerramento", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    script_info = analysis.get("uso_script", {})
+    pdf.cell(0, 10, f"Status: {script_info.get('status', 'N/A')}", 0, 1)
+    pdf.multi_cell(0, 10, f"Justificativa: {script_info.get('justificativa', 'N/A')}")
+    pdf.ln(5)
+    
+    # Pontuação Total
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Pontuação Total", 0, 1)
+    pdf.set_font("Arial", "B", 12)
+    total = analysis.get("pontuacao_total", "N/A")
+    pdf.cell(0, 10, f"{total} pontos de 100", 0, 1)
+    pdf.ln(5)
+    
+    # Resumo Geral
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Resumo Geral", 0, 1)
+    pdf.set_font("Arial", "", 12)
+    pdf.multi_cell(0, 10, analysis.get("resumo_geral", "N/A"))
+    pdf.ln(5)
+    
+    # Checklist (nova página)
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Checklist Técnico", 0, 1)
+    pdf.ln(5)
+    
+    # Itens do checklist
+    checklist = analysis.get("checklist", [])
+    for item in checklist:
+        item_num = item.get('item', '')
+        criterio = item.get('criterio', '')
+        pontos = item.get('pontos', 0)
+        resposta = str(item.get('resposta', ''))
+        justificativa = item.get('justificativa', '')
+        
+        pdf.set_font("Arial", "B", 12)
+        pdf.multi_cell(0, 10, f"{item_num}. {criterio} ({pontos} pts)")
+        pdf.set_font("Arial", "", 12)
+        pdf.cell(0, 10, f"Resposta: {resposta}", 0, 1)
+        pdf.multi_cell(0, 10, f"Justificativa: {justificativa}")
+        pdf.ln(5)
+    
+    # Transcrição na última página
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "Transcrição da Ligação", 0, 1)
+    pdf.set_font("Arial", "", 10)
+    pdf.multi_cell(0, 10, transcript_text)
+    
+    return pdf.output(dest="S").encode("latin1")
+
+# Função para criar link de download do PDF
+def get_pdf_download_link(pdf_bytes, filename):
+    b64 = base64.b64encode(pdf_bytes).decode()
+    href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}">Baixar Relatório em PDF</a>'
+    return href
 
 # Configurações da página
 st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
@@ -180,7 +296,10 @@ def extract_json(text):
 
 # Título
 st.title("HeatGlass")
-st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento. (gpt-4-turbo)")
+st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento.")
+
+# Modelo fixo: GPT-4 Turbo
+modelo_gpt = "gpt-4-turbo"
 
 # Upload de áudio
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
@@ -257,6 +376,7 @@ Critérios Eliminatórios (0 pontos em cada caso):
 - Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
 - Difamou a imagem da Carglass, de afiliados, seguradoras ou colegas de trabalho, ou falou negativamente sobre algum serviço prestado por nós ou por afiliados?
 - Comentou sobre serviços de terceiros (como oficinas, seguradoras, garatias ou parceiros), mesmo que sem difamação, quebrando o padrão de orientação ao cliente?** (Esse item deve ser considerado eliminatório e justificado se ocorrer.)
+- Frases como "o veículo do senhor está na garantia geral?" podem gerar eliminação pois informa sobre garantia de um terceiro, ou de outra empresa que não é a Carglass.
 
 O script correto para a pergunta 14 é:
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
@@ -273,7 +393,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
         with st.spinner("Analisando a conversa..."):
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4-turbo",
+                    model=modelo_gpt,
                     messages=[
                         {"role": "system", "content": "Você é um analista especializado em atendimento. Responda APENAS com o JSON solicitado, sem texto adicional, sem marcadores de código como ```json, e sem explicações."},
                         {"role": "user", "content": prompt}
@@ -389,6 +509,16 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 # Resumo
                 st.subheader("📝 Resumo Geral")
                 st.markdown(f"<div class='result-box'>{analysis.get('resumo_geral')}</div>", unsafe_allow_html=True)
+                
+                # Gerar PDF
+                st.subheader("📄 Relatório em PDF")
+                try:
+                    pdf_bytes = create_pdf(analysis, transcript_text, modelo_gpt)
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    filename = f"HeatGlass_Relatorio_{timestamp}.pdf"
+                    st.markdown(get_pdf_download_link(pdf_bytes, filename), unsafe_allow_html=True)
+                except Exception as pdf_error:
+                    st.error(f"Erro ao gerar PDF: {str(pdf_error)}")
 
             except Exception as e:
                 st.error(f"Erro ao processar a análise: {str(e)}")
