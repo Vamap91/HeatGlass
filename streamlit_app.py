@@ -149,6 +149,35 @@ def get_script_status_class(status):
     else:
         return "script-nao-usado"
 
+# Função para extrair JSON válido da resposta
+def extract_json(text):
+    # Procura pelo primeiro '{' e último '}'
+    start_idx = text.find('{')
+    end_idx = text.rfind('}')
+    
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        json_str = text[start_idx:end_idx+1]
+        try:
+            # Verifica se é um JSON válido
+            return json.loads(json_str)
+        except:
+            # Se não for, tenta encontrar o JSON de outras formas
+            pass
+    
+    # Tenta usar expressão regular para encontrar um bloco JSON
+    import re
+    json_pattern = r'\{(?:[^{}]|(?R))*\}'
+    matches = re.findall(json_pattern, text, re.DOTALL)
+    if matches:
+        for match in matches:
+            try:
+                return json.loads(match)
+            except:
+                continue
+    
+    # Se tudo falhar, lança um erro detalhado
+    raise ValueError(f"Não foi possível extrair JSON válido da resposta: {text[:100]}...")
+
 # Título
 st.title("HeatGlass")
 st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento.")
@@ -176,14 +205,14 @@ if uploaded_file is not None:
         with st.expander("Ver transcrição completa"):
             st.code(transcript_text, language="markdown")
 
-        # Prompt
+        # Prompt - Modificado para enfatizar o formato de resposta esperado
         prompt = f"""
 Você é um especialista em atendimento ao cliente. Avalie a transcrição a seguir:
 
 TRANSCRIÇÃO:
 \"\"\"{transcript_text}\"\"\"
 
-Retorne um JSON com os seguintes campos:
+Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou depois:
 
 {{
   "temperatura": {{"classificacao": "...", "justificativa": "..."}},
@@ -238,7 +267,7 @@ O script correto para a pergunta 14 é:
 
 Avalie se o script acima foi utilizado completamente, parcialmente ou não foi utilizado.
 
-Responda apenas com o JSON e nada mais.
+IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
 
         with st.spinner("Analisando a conversa..."):
@@ -246,17 +275,28 @@ Responda apenas com o JSON e nada mais.
                 response = client.chat.completions.create(
                     model="gpt-4-turbo",
                     messages=[
-                        {"role": "system", "content": "Você é um analista especializado em atendimento."},
+                        {"role": "system", "content": "Você é um analista especializado em atendimento. Responda APENAS com o JSON solicitado, sem texto adicional, sem marcadores de código como ```json, e sem explicações."},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=0.3
+                    temperature=0.3,
+                    response_format={"type": "json_object"}  # Força resposta em formato JSON
                 )
                 result = response.choices[0].message.content.strip()
 
-                if not result.startswith("{"):
-                    raise ValueError("Formato de resposta inválido")
-
-                analysis = json.loads(result)
+                # Mostrar resultado bruto para depuração
+                with st.expander("Debug - Resposta bruta"):
+                    st.code(result, language="json")
+                
+                # Tentar extrair e validar o JSON com a função melhorada
+                try:
+                    if not result.startswith("{"):
+                        analysis = extract_json(result)
+                    else:
+                        analysis = json.loads(result)
+                except Exception as json_error:
+                    st.error(f"Erro ao processar JSON: {str(json_error)}")
+                    st.text_area("Resposta da IA:", value=result, height=300)
+                    st.stop()
 
                 # Temperatura
                 st.subheader("🌡️ Temperatura Emocional")
@@ -341,8 +381,8 @@ Responda apenas com o JSON e nada mais.
                         
                         st.markdown(f"""
                         <div class="{classe}">
-                        {icone} <strong>{item['item']}. {item['criterio']}</strong> ({item['pontos']} pts)<br>
-                        <em>{item['justificativa']}</em>
+                        {icone} <strong>{item.get('item')}. {item.get('criterio')}</strong> ({item.get('pontos')}) pts)<br>
+                        <em>{item.get('justificativa')}</em>
                         </div>
                         """, unsafe_allow_html=True)
 
