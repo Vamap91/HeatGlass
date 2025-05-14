@@ -257,6 +257,10 @@ h1, h2, h3 {
     border: 2px solid #FF0000;
     font-weight: bold;
 }
+.emoji-temp {
+    display: inline-block;
+    margin-left: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
 
