@@ -244,7 +244,7 @@ Responda apenas com o JSON e nada mais.
         with st.spinner("Analisando a conversa..."):
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-4-turbo",
                     messages=[
                         {"role": "system", "content": "Você é um analista especializado em atendimento."},
                         {"role": "user", "content": prompt}
