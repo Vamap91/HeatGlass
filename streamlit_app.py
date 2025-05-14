@@ -366,13 +366,23 @@ Checklist (100 pts totais):
 16. Realizou a tabulação de forma correta? (4 pts)
 17. A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente? (4 pts)
 
-Critérios Eliminatórios (0 pontos em cada caso):
-- Ofereceu/garantiu algum serviço que o cliente não tinha direito?
+Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
+- Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
+  Exemplos: Prometer serviços fora da cobertura, dar garantias não previstas no contrato.
 - Preencheu ou selecionou o Veículo/peça incorretos?
+  Exemplos: Registrar modelo diferente do informado, selecionar peça diferente da solicitada.
 - Agiu de forma rude, grosseira, não deixando o cliente falar e/ou se alterou na ligação?
+  Exemplos: Interrupções constantes, tom agressivo, impedir cliente de explicar situação.
 - Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
-- Difamou a imagem da Carglass, de afiliados, seguradoras ou colegas de trabalho, ou falou negativamente sobre algum serviço prestado por nós ou por afiliados?
-- Comentou sobre serviços de terceiros (como oficinas, seguradoras, garatias ou parceiros), mesmo que sem difamação, quebrando o padrão de orientação ao cliente?** (Esse item deve ser considerado eliminatório e justificado se ocorrer.)
+  Exemplos: Desligar abruptamente, transferir sem explicar ou obter consentimento.
+- Falou negativamente sobre a Carglass, afiliados, seguradoras ou colegas de trabalho?
+  Exemplos: Criticar atendimento prévio, fazer comentários pejorativos sobre a empresa.
+- Forneceu informações incorretas ou fez suposições infundadas sobre garantias, serviços ou procedimentos?
+  Exemplos: "Como a lataria já passou para nós, então provavelmente a sua garantia é motor e câmbio" sem ter certeza disso, sugerir que o cliente pode perder a garantia do veículo.
+- Comentou sobre serviços de terceiros ou orientou o cliente para serviços externos sem autorização?
+  Exemplos: Sugerir que o cliente verifique procedimentos com a concessionária primeiro, fazer comparações com outros serviços, discutir políticas de garantia de outras empresas sem necessidade.
+
+ATENÇÃO: Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio" - estas constituem informações incorretas ou suposições sem confirmação que podem confundir o cliente e são consideradas violações de critérios eliminatórios.
 
 O script correto para a pergunta 14 é:
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
