@@ -428,9 +428,27 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 st.subheader("🌡️ Temperatura Emocional")
                 temp = analysis.get("temperatura", {})
                 temp_class = temp.get("classificacao", "Desconhecida")
-                emoji = {'Calma': '😌', 'Neutra': '😐', 'Tensa': '😟', 'Muito Tensa': '😡'}.get(temp_class, '❓')
+                
+                # Mapa de emojis para cada temperatura emocional
+                emoji_map = {
+                    'Calma': '😌', 
+                    'Neutra': '😐', 
+                    'Tensa': '😟', 
+                    'Muito Tensa': '😡'
+                }
+                emoji = emoji_map.get(temp_class, '❓')
+                
                 temp_class_style = get_temp_class(temp_class)
-                st.markdown(f"<h3 class='{temp_class_style}'>{temp_class} {emoji}</h3>", unsafe_allow_html=True)
+                
+                # Use HTML para garantir que o emoji seja exibido corretamente
+                st.markdown(
+                    f"""<div>
+                        <span class='{temp_class_style}'>{temp_class}</span>
+                        <span class='emoji-temp' style='font-size: 1.5em;'>{emoji}</span>
+                       </div>""", 
+                    unsafe_allow_html=True
+                )
+                
                 st.markdown(f"**Justificativa:** {temp.get('justificativa')}")
 
                 # Impacto
