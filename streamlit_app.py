@@ -1,4 +1,7 @@
 import streamlit as st
+# Configurações da página - DEVE ser a primeira chamada Streamlit
+st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
+
 from openai import OpenAI
 import tempfile
 import re
@@ -9,9 +12,6 @@ from fpdf import FPDF
 
 # Inicializa o novo cliente da OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-# Configurações da página
-st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
 
 # Função para criar PDF
 def create_pdf(analysis, transcript_text, model_name):
@@ -123,8 +123,34 @@ def get_pdf_download_link(pdf_bytes, filename):
     href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}">Baixar Relatório em PDF</a>'
     return href
 
-# Configurações da página
-st.set_page_config(page_title="HeatGlass", page_icon="🔴", layout="centered")
+# Função para extrair JSON válido da resposta
+def extract_json(text):
+    # Procura pelo primeiro '{' e último '}'
+    start_idx = text.find('{')
+    end_idx = text.rfind('}')
+    
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        json_str = text[start_idx:end_idx+1]
+        try:
+            # Verifica se é um JSON válido
+            return json.loads(json_str)
+        except:
+            # Se não for, tenta encontrar o JSON de outras formas
+            pass
+    
+    # Tenta usar expressão regular para encontrar um bloco JSON
+    import re
+    json_pattern = r'\{(?:[^{}]|(?R))*\}'
+    matches = re.findall(json_pattern, text, re.DOTALL)
+    if matches:
+        for match in matches:
+            try:
+                return json.loads(match)
+            except:
+                continue
+    
+    # Se tudo falhar, lança um erro detalhado
+    raise ValueError(f"Não foi possível extrair JSON válido da resposta: {text[:100]}...")
 
 # Estilo visual
 st.markdown("""
@@ -265,41 +291,12 @@ def get_script_status_class(status):
     else:
         return "script-nao-usado"
 
-# Função para extrair JSON válido da resposta
-def extract_json(text):
-    # Procura pelo primeiro '{' e último '}'
-    start_idx = text.find('{')
-    end_idx = text.rfind('}')
-    
-    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-        json_str = text[start_idx:end_idx+1]
-        try:
-            # Verifica se é um JSON válido
-            return json.loads(json_str)
-        except:
-            # Se não for, tenta encontrar o JSON de outras formas
-            pass
-    
-    # Tenta usar expressão regular para encontrar um bloco JSON
-    import re
-    json_pattern = r'\{(?:[^{}]|(?R))*\}'
-    matches = re.findall(json_pattern, text, re.DOTALL)
-    if matches:
-        for match in matches:
-            try:
-                return json.loads(match)
-            except:
-                continue
-    
-    # Se tudo falhar, lança um erro detalhado
-    raise ValueError(f"Não foi possível extrair JSON válido da resposta: {text[:100]}...")
+# Modelo fixo: GPT-4 Turbo
+modelo_gpt = "gpt-4-turbo"
 
 # Título
 st.title("HeatGlass")
 st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento.")
-
-# Modelo fixo: GPT-4 Turbo
-modelo_gpt = "gpt-4-turbo"
 
 # Upload de áudio
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
@@ -376,7 +373,6 @@ Critérios Eliminatórios (0 pontos em cada caso):
 - Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
 - Difamou a imagem da Carglass, de afiliados, seguradoras ou colegas de trabalho, ou falou negativamente sobre algum serviço prestado por nós ou por afiliados?
 - Comentou sobre serviços de terceiros (como oficinas, seguradoras, garatias ou parceiros), mesmo que sem difamação, quebrando o padrão de orientação ao cliente?** (Esse item deve ser considerado eliminatório e justificado se ocorrer.)
-- Frases como "o veículo do senhor está na garantia geral?" podem gerar eliminação pois informa sobre garantia de um terceiro, ou de outra empresa que não é a Carglass.
 
 O script correto para a pergunta 14 é:
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
@@ -501,7 +497,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                         
                         st.markdown(f"""
                         <div class="{classe}">
-                        {icone} <strong>{item.get('item')}. {item.get('criterio')}</strong> ({item.get('pontos')}) pts)<br>
+                        {icone} <strong>{item.get('item')}. {item.get('criterio')}</strong> ({item.get('pontos')} pts)<br>
                         <em>{item.get('justificativa')}</em>
                         </div>
                         """, unsafe_allow_html=True)
