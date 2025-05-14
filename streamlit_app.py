@@ -180,7 +180,7 @@ def extract_json(text):
 
 # Título
 st.title("HeatGlass")
-st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento.")
+st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento. (gpt-4-turbo)")
 
 # Upload de áudio
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
