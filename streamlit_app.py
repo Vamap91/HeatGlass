@@ -34,24 +34,6 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, f"Modelo utilizado: {model_name}", 0, 1)
     pdf.ln(5)
     
-    # Temperatura Emocional
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "Temperatura Emocional", 0, 1)
-    pdf.set_font("Arial", "", 12)
-    temp = analysis.get("temperatura", {})
-    pdf.cell(0, 10, f"Classificação: {temp.get('classificacao', 'N/A')}", 0, 1)
-    pdf.multi_cell(0, 10, f"Justificativa: {temp.get('justificativa', 'N/A')}")
-    pdf.ln(5)
-    
-    # Impacto Comercial
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "Impacto Comercial", 0, 1)
-    pdf.set_font("Arial", "", 12)
-    impact = analysis.get("impacto_comercial", {})
-    pdf.cell(0, 10, f"Percentual: {impact.get('percentual', 'N/A')}% - {impact.get('faixa', 'N/A')}", 0, 1)
-    pdf.multi_cell(0, 10, f"Justificativa: {impact.get('justificativa', 'N/A')}")
-    pdf.ln(5)
-    
     # Status Final
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "Status Final", 0, 1)
@@ -76,7 +58,7 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Pontuação Total", 0, 1)
     pdf.set_font("Arial", "B", 12)
     total = analysis.get("pontuacao_total", "N/A")
-    pdf.cell(0, 10, f"{total} pontos de 81", 0, 1)
+    pdf.cell(0, 10, f"{total} pontos de 100", 0, 1)
     pdf.ln(5)
     
     # Resumo Geral
@@ -224,22 +206,6 @@ h1, h2, h3 {
     margin-bottom: 5px;
     border-left: 5px solid #FFD700;
 }
-.temperature-calm {
-    color: #00C100;
-    font-size: 1.5em;
-}
-.temperature-neutral {
-    color: #FFD700;
-    font-size: 1.5em;
-}
-.temperature-tense {
-    color: #FFA500;
-    font-size: 1.5em;
-}
-.temperature-very-tense {
-    color: #FF0000;
-    font-size: 1.5em;
-}
 .progress-high {
     color: #00C100;
 }
@@ -259,19 +225,6 @@ h1, h2, h3 {
 }
 </style>
 """, unsafe_allow_html=True)
-
-# Função para determinar classe de temperatura
-def get_temp_class(temp):
-    if temp == "Calma":
-        return "temperature-calm"
-    elif temp == "Neutra":
-        return "temperature-neutral"
-    elif temp == "Tensa":
-        return "temperature-tense"
-    elif temp == "Muito Tensa":
-        return "temperature-very-tense"
-    else:
-        return ""
 
 # Função para determinar classe de progresso
 def get_progress_class(value):
@@ -296,7 +249,7 @@ modelo_gpt = "gpt-4-turbo"
 
 # Título
 st.title("HeatGlass")
-st.write("Análise inteligente de ligações: temperatura emocional, impacto no negócio e status do atendimento.")
+st.write("Análise inteligente de ligações: avaliação de atendimento ao cliente e conformidade com processos.")
 
 # Upload de áudio
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
@@ -427,24 +380,6 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                     st.text_area("Resposta da IA:", value=result, height=300)
                     st.stop()
 
-                # Temperatura
-                st.subheader("🌡️ Temperatura Emocional")
-                temp = analysis.get("temperatura", {})
-                temp_class = temp.get("classificacao", "Desconhecida")
-                emoji = {'Calma': '😌', 'Neutra': '😐', 'Tensa': '😟', 'Muito Tensa': '😡'}.get(temp_class, '❓')
-                temp_class_style = get_temp_class(temp_class)
-                st.markdown(f"<h3 class='{temp_class_style}'>{temp_class} {emoji}</h3>", unsafe_allow_html=True)
-                st.markdown(f"**Justificativa:** {temp.get('justificativa')}")
-
-                # Impacto
-                st.subheader("💼 Impacto Comercial")
-                impact = analysis.get("impacto_comercial", {})
-                pct = float(re.sub(r"[^\d.]", "", str(impact.get("percentual", "0"))))
-                progress_class = get_progress_class(pct)
-                st.progress(min(pct / 100, 1.0))
-                st.markdown(f"<h3 class='{progress_class}'>{int(pct)}% - {impact.get('faixa')}</h3>", unsafe_allow_html=True)
-                st.markdown(f"**Justificativa:** {impact.get('justificativa')}")
-
                 # Status Final
                 st.subheader("📋 Status Final")
                 final = analysis.get("status_final", {})
@@ -493,7 +428,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 total = float(re.sub(r"[^\d.]", "", str(analysis.get("pontuacao_total", "0"))))
                 progress_class = get_progress_class(total)
                 st.progress(min(total / 100, 1.0))
-                st.markdown(f"<h3 class='{progress_class}'>{int(total)} pontos de 81</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 class='{progress_class}'>{int(total)} pontos de 100</h3>", unsafe_allow_html=True)
 
                 with st.expander("Ver Detalhes do Checklist"):
                     for item in checklist:
@@ -534,4 +469,4 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 try:
                     st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
                 except:
-                    st.text_area("Não foi possível recuperar a resposta da IA", height=300)
+                    st.text_area("Não foi 
