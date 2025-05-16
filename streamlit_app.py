@@ -58,7 +58,7 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Pontuação Total", 0, 1)
     pdf.set_font("Arial", "B", 12)
     total = analysis.get("pontuacao_total", "N/A")
-    pdf.cell(0, 10, f"{total} pontos de 100", 0, 1)
+    pdf.cell(0, 10, f"{total} pontos de 81", 0, 1)
     pdf.ln(5)
     
     # Resumo Geral
@@ -171,13 +171,6 @@ h1, h2, h3 {
     border-radius: 6px;
     margin-bottom: 10px;
 }
-.script-parcial {
-    background-color: #ffffcc;
-    padding: 10px;
-    border-left: 5px solid #FFD700;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
 .script-nao-usado {
     background-color: #ffcccc;
     padding: 10px;
@@ -198,13 +191,6 @@ h1, h2, h3 {
     border-radius: 6px;
     margin-bottom: 5px;
     border-left: 5px solid #FF0000;
-}
-.criterio-parcial {
-    background-color: #ffffcc;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    border-left: 5px solid #FFD700;
 }
 .progress-high {
     color: #00C100;
@@ -239,8 +225,6 @@ def get_progress_class(value):
 def get_script_status_class(status):
     if status.lower() == "completo" or status.lower() == "sim":
         return "script-usado"
-    elif "parcial" in status.lower():
-        return "script-parcial"
     else:
         return "script-nao-usado"
 
@@ -274,7 +258,7 @@ if uploaded_file is not None:
         with st.expander("Ver transcrição completa"):
             st.code(transcript_text, language="markdown")
 
-        # Prompt - Modificado para enfatizar o formato de resposta esperado
+        # Prompt - Usando o checklist e instruções originais, mas removendo temperatura/impacto
         prompt = f"""
 Você é um especialista em atendimento ao cliente. Avalie a transcrição a seguir:
 
@@ -284,8 +268,6 @@ TRANSCRIÇÃO:
 Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou depois:
 
 {{
-  "temperatura": {{"classificacao": "...", "justificativa": "..."}},
-  "impacto_comercial": {{"percentual": ..., "faixa": "...", "justificativa": "..."}},
   "status_final": {{"satisfacao": "...", "risco": "...", "desfecho": "..."}},
   "checklist": [
     {{"item": 1, "criterio": "Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador?", "pontos": 10, "resposta": "...", "justificativa": "..."}},
@@ -315,10 +297,10 @@ Checklist (81 pts totais):
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
 
 INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
-1. Técnica do eco: Marque como "parcial" se o atendente ecoou apenas alguns dados (como telefone) mas não outros (como placa, CPF ou informações do veículo). Só marque como "sim" quando o eco for consistente para todos os dados importantes coletados.
+1. Técnica do eco: Marque como "sim" somente quando o eco for consistente para todos os dados importantes coletados, caso contrário marque como "não".
 2. Script LGPD: Seja rigoroso na avaliação. O script deve mencionar explicitamente questões de privacidade e uso de dados. Variações mínimas são aceitáveis, mas a essência completa deve estar presente.
 3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
-4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos; se "parcial", atribua metade da pontuação.
+4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
 6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
 
@@ -347,7 +329,7 @@ O script correto para a pergunta 14 é:
 *Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?*
 *Agradeço o seu contato, tenha um excelente dia!"*
 
-Avalie se o script acima foi utilizado completamente, parcialmente ou não foi utilizado.
+Avalie se o script acima foi utilizado completamente ou não foi utilizado.
 
 IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
@@ -428,7 +410,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 total = float(re.sub(r"[^\d.]", "", str(analysis.get("pontuacao_total", "0"))))
                 progress_class = get_progress_class(total)
                 st.progress(min(total / 100, 1.0))
-                st.markdown(f"<h3 class='{progress_class}'>{int(total)} pontos de 100</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 class='{progress_class}'>{int(total)} pontos de 81</h3>", unsafe_allow_html=True)
 
                 with st.expander("Ver Detalhes do Checklist"):
                     for item in checklist:
@@ -436,9 +418,6 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                         if resposta == "sim":
                             classe = "criterio-sim"
                             icone = "✅"
-                        elif "parcial" in resposta:
-                            classe = "criterio-parcial"
-                            icone = "⚠️"
                         else:
                             classe = "criterio-nao"
                             icone = "❌"
