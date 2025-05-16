@@ -76,7 +76,7 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.cell(0, 10, "Pontuação Total", 0, 1)
     pdf.set_font("Arial", "B", 12)
     total = analysis.get("pontuacao_total", "N/A")
-    pdf.cell(0, 10, f"{total} pontos de 100", 0, 1)
+    pdf.cell(0, 10, f"{total} pontos de 81", 0, 1)
     pdf.ln(5)
     
     # Resumo Geral
