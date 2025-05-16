@@ -366,6 +366,14 @@ Checklist (100 pts totais):
 16. Realizou a tabulação de forma correta? (4 pts)
 17. A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente? (4 pts)
 
+INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
+1. Técnica do eco: Marque como "parcial" se o atendente ecoou apenas alguns dados (como telefone) mas não outros (como placa, CPF ou informações do veículo). Só marque como "sim" quando o eco for consistente para todos os dados importantes coletados.
+2. Script LGPD: Seja rigoroso na avaliação. O script deve mencionar explicitamente questões de privacidade e uso de dados. Variações mínimas são aceitáveis, mas a essência completa deve estar presente.
+3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
+4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos; se "parcial", atribua metade da pontuação.
+5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
+6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
   Exemplos: Prometer serviços fora da cobertura, dar garantias não previstas no contrato.
