@@ -296,6 +296,8 @@ Checklist (81 pts totais):
 11.Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
 
+Importante: A pontuação total final deve ser recalculada automaticamente com base nos pontos efetivamente atribuídos em cada item. Mesmo que a estrutura da avaliação preveja um máximo de 81 pontos, nenhum relatório deve exibir 81 pontos se algum item for avaliado com "não". O valor exibido como "Pontuação Total" deve refletir fielmente a soma dos pontos obtidos.
+
 INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
 2. Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
