@@ -297,8 +297,14 @@ Checklist (81 pts totais):
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
 
 INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
-1. Técnica do eco: Marque como "sim" somente quando o eco for consistente para todos os dados importantes coletados, caso contrário marque como "não".
-2. Script LGPD: Seja rigoroso na avaliação. O script deve mencionar explicitamente questões de privacidade e uso de dados. Variações mínimas são aceitáveis, mas a essência completa deve estar presente.
+1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
+2. Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
+    2.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
+    2.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
+    2.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
+    2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
+    2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
+    2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
 3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
@@ -322,7 +328,7 @@ Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 
 ATENÇÃO: Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio" - estas constituem informações incorretas ou suposições sem confirmação que podem confundir o cliente e são consideradas violações de critérios eliminatórios.
 
-O script correto para a pergunta 14 é:
+O script correto para a pergunta 12 é:
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
 *Lembrando que o seu atendimento tem uma franquia de XXX que deverá ser paga no ato do atendimento. (****acessórios/RRSM ****- tem uma franquia que será confirmada após a vistoria).*
 *Te ajudo com algo mais?*
