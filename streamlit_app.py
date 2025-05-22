@@ -339,7 +339,16 @@ O script correto para a pergunta 12 é:
 
 Avalie se o script acima foi utilizado completamente ou não foi utilizado.
 
-ATENÇÃO AO CALCULO Checklist (81 pts totais): A pontuação total final deve ser recalculada automaticamente com base nos pontos efetivamente atribuídos em cada item. Mesmo que a estrutura da avaliação preveja um máximo de 81 pontos, nenhum relatório deve exibir 81 pontos se algum item for avaliado com "não". O valor exibido como "Pontuação Total" deve refletir fielmente a soma dos pontos obtidos.
+❗REGRA OBRIGATÓRIA DE PONTUAÇÃO FINAL:
+Ao final da avaliação, a soma da pontuação total NÃO deve ser assumida como 81 pontos por padrão.
+Em vez disso, some apenas os pontos dos itens marcados como "sim".
+Para cada item com resposta "não", atribua exatamente 0 pontos e subtraia esse valor da soma final.
+
+✅ Exemplo: Se o item 3 (LGPD - 2 pontos) for marcado como "não", a pontuação total deve obrigatoriamente ser 79 e não 81.
+
+🛑 NUNCA exiba “81 pontos” como pontuação total se houver qualquer item com resposta negativa.
+
+Essa regra é obrigatória e substitui qualquer comportamento automatizado incorreto que assuma o total máximo sem verificar cada item individualmente.
 
 IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
