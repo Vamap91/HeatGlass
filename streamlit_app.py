@@ -339,6 +339,8 @@ O script correto para a pergunta 12 é:
 
 Avalie se o script acima foi utilizado completamente ou não foi utilizado.
 
+ATENÇÃO AO CALCULO Checklist (81 pts totais): A pontuação total final deve ser recalculada automaticamente com base nos pontos efetivamente atribuídos em cada item. Mesmo que a estrutura da avaliação preveja um máximo de 81 pontos, nenhum relatório deve exibir 81 pontos se algum item for avaliado com "não". O valor exibido como "Pontuação Total" deve refletir fielmente a soma dos pontos obtidos.
+
 IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
 
