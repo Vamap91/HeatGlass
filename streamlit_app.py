@@ -283,6 +283,13 @@ Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou dep
 }}
 
 Checklist (81 pts totais):
+Cálculo da pontuação total: 
+A pontuação final deve ser a soma exata apenas dos itens marcados como "sim".  
+Para cada item avaliado como "não", atribua zero pontos e exclua do total.  
+Nunca some 81 pontos por padrão.  
+Apenas os itens com resposta "sim" contribuem para a pontuação final real.
+
+Checklist (81 pts totais):
 1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
 2. Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc) (6 Pontos)
 3. Verbalizou o script da LGPD? (2 Pontos)
@@ -338,17 +345,6 @@ O script correto para a pergunta 12 é:
 *Agradeço o seu contato, tenha um excelente dia!"*
 
 Avalie se o script acima foi utilizado completamente ou não foi utilizado.
-
-❗REGRA OBRIGATÓRIA DE PONTUAÇÃO FINAL:
-Ao final da avaliação, a soma da pontuação total NÃO deve ser assumida como 81 pontos por padrão.
-Em vez disso, some apenas os pontos dos itens marcados como "sim".
-Para cada item com resposta "não", atribua exatamente 0 pontos e subtraia esse valor da soma final.
-
-✅ Exemplo: Se o item 3 (LGPD - 2 pontos) for marcado como "não", a pontuação total deve obrigatoriamente ser 79 e não 81.
-
-🛑 NUNCA exiba “81 pontos” como pontuação total se houver qualquer item com resposta negativa.
-
-Essa regra é obrigatória e substitui qualquer comportamento automatizado incorreto que assuma o total máximo sem verificar cada item individualmente.
 
 IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
