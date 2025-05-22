@@ -282,12 +282,11 @@ Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou dep
   "resumo_geral": "..."
 }}
 
-Checklist (81 pts totais):
-Cálculo da pontuação total: 
-A pontuação final deve ser a soma exata apenas dos itens marcados como "sim".  
-Para cada item avaliado como "não", atribua zero pontos e exclua do total.  
-Nunca some 81 pontos por padrão.  
-Apenas os itens com resposta "sim" contribuem para a pontuação final real.
+Scoring logic (mandatory):
+*Only add points for items marked as “yes”.
+*If the answer is “no”, assign 0 points.
+*Never display 81 points by default.
+*Final score = sum of all "yes" items only.
 
 Checklist (81 pts totais):
 1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
