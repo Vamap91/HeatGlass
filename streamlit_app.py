@@ -317,6 +317,8 @@ INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
 6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+7. Checklist Item 2 - Confirmação de dados: Para marcar "sim", TODOS os seguintes devem estar presentes: nome completo confirmado, CPF/CNPJ solicitado, placa confirmada, e-mail solicitado, endereço confirmado, exatamente 2 telefones coletados. Se QUALQUER item estiver ausente, marque "não".
+8. Checklist Item 6 - Compreensão da solicitação: Marque "sim" apenas se o atendente identificou corretamente o serviço/peça solicitado desde o início, sem confusão. Qualquer mal-entendido sobre o tipo de serviço resulta em "não".
 
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
