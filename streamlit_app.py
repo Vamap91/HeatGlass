@@ -290,15 +290,7 @@ Scoring logic (mandatory):
 
 Checklist (81 pts totais):
 1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
-2. Confirmou os dados do cadastro e pediu 2 telefones para contato? (6 Pontos)
-   ATENÇÃO: Este item deve ser avaliado como "sim" APENAS se o atendente coletou/confirmou TODOS os seguintes dados obrigatórios:
-   - Nome completo do cliente/titular ✓
-   - CPF do cliente ✓  
-   - Placa do veículo ✓
-   - E-mail do cliente ✓
-   - Dados do veículo (modelo/marca/ano) ✓
-   - Endereço completo do cliente ✓
-   - Pelo menos 2 telefones para contato ✓
+2. Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc) (6 Pontos)
 3. Verbalizou o script da LGPD? (2 Pontos)
 4. Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente? (5 Pontos)
 5. Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade?  (3 Pontos)
