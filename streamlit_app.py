@@ -319,6 +319,7 @@ INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
 6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+7. Conforme o checklist 6. precisa ser analisado de realmente o atendente demonstrou dominio sobre o produto e serviço, caso ele fique em dúvida sobre o produto deve ser pontuado como "Não" e zerar a pontuação dessa questão.
 
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
