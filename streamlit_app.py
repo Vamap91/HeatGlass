@@ -302,7 +302,11 @@ Checklist (81 pts totais):
 11.Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
 
-Important: The final total score must be automatically recalculated based on the points actually awarded for each item. Even though the evaluation structure provides for a maximum of 81 points, no report should display 81 points if any item is evaluated as "no". The value displayed as "Total Score" must faithfully reflect the sum of the points obtained.
+Scoring logic (mandatory):
+*Only add points for items marked as “yes”.
+*If the answer is “no”, assign 0 points.
+*Never display 81 points by default.
+*Final score = sum of all "yes" items only
 
 INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
