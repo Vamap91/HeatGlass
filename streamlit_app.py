@@ -463,4 +463,4 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 try:
                     st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
                 except:
-                    st.text_area("Não foi possível recuperar a resposta da IA
+                    st.text_area("Não foi possível recuperar a resposta da IA)
