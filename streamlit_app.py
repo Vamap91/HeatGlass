@@ -282,73 +282,92 @@ Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou dep
   "resumo_geral": "..."
 }}
 
-Scoring logic (mandatory):
-*Only add points for items marked as “yes”.
-*If the answer is “no”, assign 0 points.
-*Never display 81 points by default.
-*Final score = sum of all "yes" items only.
+You are a specialized customer service analyst. Analyze the Portuguese transcript with ABSOLUTE RIGOR.
+MANDATORY SCORING LOGIC:
 
-Checklist (81 pts totais):
-1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
-2. Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc) (6 Pontos)
-3. Verbalizou o script da LGPD? (2 Pontos)
-4. Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente? (5 Pontos)
-5. Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade?  (3 Pontos)
-6. Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço? (5 Pontos)
-7. Confirmou as informações completas sobre o dano no veículo? Confirmou data e motivo da quebra, registro do item, dano na pintura e demais informações necessárias para o correto fluxo de atendimento. (tamanho da trinca, LED, Xenon, etc) - 10 Pontos
-8. Confirmou cidade para o atendimento e selecionou corretamente a primeira opção de loja identificada pelo sistema?  (10 Pontos)
-9. A comunicação com o cliente foi eficaz: não houve uso de gírias, linguagem inadequada ou conversas paralelas? O analista informou quando ficou ausente da linha e quando retornou? (5 Pontos)
-10. A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente? (4 Pontos)
-11.Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
-12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
+Default assumption: All items start as "NO" until explicitly proven in transcript
+Scoring rule: Only add points for items marked as "yes"
+Zero tolerance: If the answer is "no", assign 0 points
+Never display 81 points by default
+Final score = sum of all "yes" items only
 
-Importante: A pontuação total final deve ser recalculada automaticamente com base nos pontos efetivamente atribuídos em cada item. Mesmo que a estrutura da avaliação preveja um máximo de 81 pontos, nenhum relatório deve exibir 81 pontos se algum item for avaliado com "não". O valor exibido como "Pontuação Total" deve refletir fielmente a soma dos pontos obtidos.
+VALIDATION PROCESS:
 
-INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
-1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
-2. Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
-    2.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
-    2.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
-    2.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
-    2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
-    2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
-    2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
-3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
-4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
-5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
-6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
-7. Checklist Item 2 - Confirmação de dados: Para marcar "sim", TODOS os seguintes devem estar presentes: nome completo confirmado, CPF/CNPJ solicitado, placa confirmada, e-mail solicitado, endereço confirmado, exatamente 2 telefones coletados. Se QUALQUER item estiver ausente, marque "não".
-8. Checklist Item 6 - Compreensão da solicitação: Marque "sim" apenas se o atendente identificou corretamente o serviço/peça solicitado desde o início, sem confusão. Qualquer mal-entendido sobre o tipo de serviço resulta em "não".
+Read transcript completely first
+For each checklist item: Find explicit evidence before marking "yes"
+Cross-validation: Re-check items 2 and 6 using specific criteria below
+Final verification: Ensure total score reflects only "yes" items
 
-Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
-- Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
-  Exemplos: Prometer serviços fora da cobertura, dar garantias não previstas no contrato.
-- Preencheu ou selecionou o Veículo/peça incorretos?
-  Exemplos: Registrar modelo diferente do informado, selecionar peça diferente da solicitada.
-- Agiu de forma rude, grosseira, não deixando o cliente falar e/ou se alterou na ligação?
-  Exemplos: Interrupções constantes, tom agressivo, impedir cliente de explicar situação.
-- Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
-  Exemplos: Desligar abruptamente, transferir sem explicar ou obter consentimento.
-- Falou negativamente sobre a Carglass, afiliados, seguradoras ou colegas de trabalho?
-  Exemplos: Criticar atendimento prévio, fazer comentários pejorativos sobre a empresa.
-- Forneceu informações incorretas ou fez suposições infundadas sobre garantias, serviços ou procedimentos?
-  Exemplos: "Como a lataria já passou para nós, então provavelmente a sua garantia é motor e câmbio" sem ter certeza disso, sugerir que o cliente pode perder a garantia do veículo.
-- Comentou sobre serviços de terceiros ou orientou o cliente para serviços externos sem autorização?
-  Exemplos: Sugerir que o cliente verifique procedimentos com a concessionária primeiro, fazer comparações com outros serviços, discutir políticas de garantia de outras empresas sem necessidade.
 
-ATENÇÃO: Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio" - estas constituem informações incorretas ou suposições sem confirmação que podem confundir o cliente e são consideradas violações de critérios eliminatórios.
+TRANSCRIPT TO ANALYZE:
+{transcript_text}
 
-O script correto para a pergunta 12 é:
-"*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
-*Lembrando que o seu atendimento tem uma franquia de XXX que deverá ser paga no ato do atendimento. (****acessórios/RRSM ****- tem uma franquia que será confirmada após a vistoria).*
-*Te ajudo com algo mais?*
-*Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?*
-*Agradeço o seu contato, tenha um excelente dia!"*
+CHECKLIST (Portuguese content - 81 pts totais):
 
+Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
+Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc) (6 Pontos)
+Verbalizou o script da LGPD? (2 Pontos)
+Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente? (5 Pontos)
+Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade? (3 Pontos)
+Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço? (5 Pontos)
+Confirmou as informações completas sobre o dano no veículo? Confirmou data e motivo da quebra, registro do item, dano na pintura e demais informações necessárias para o correto fluxo de atendimento. (tamanho da trinca, LED, Xenon, etc) - 10 Pontos
+Confirmou cidade para o atendimento e selecionou corretamente a primeira opção de loja identificada pelo sistema? (10 Pontos)
+A comunicação com o cliente foi eficaz: não houve uso de gírias, linguagem inadequada ou conversas paralelas? O analista informou quando ficou ausente da linha e quando retornou? (5 Pontos)
+A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente? (4 Pontos)
+Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
+Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
+
+
+CRITICAL VALIDATION RULES (English for accuracy):
+IMPORTANT: Final score must be automatically recalculated based on points effectively assigned to each item. Even if the evaluation structure provides for a maximum of 81 points, no report should display 81 points if any item is evaluated as "no". The value displayed as "Total Score" must faithfully reflect the sum of points obtained.
+
+INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO (Portuguese content):
+
+Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
+Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas:
+
+Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
+Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
+Seu telefone pode ser informado ao prestador que irá realizar o serviço?
+O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
+Podemos compartilhar seu telefone com o prestador que irá te atender?
+Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
+
+
+Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
+Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
+Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
+Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+
+ENHANCED VALIDATION (English for precision):
+
+Checklist Item 2 - Data Confirmation: Mark "yes" ONLY if ALL the following are present: complete name confirmed, CPF/CNPJ requested, plate confirmed, email requested, address confirmed, exactly 2 phones collected. If ANY item is missing, mark "no".
+Checklist Item 6 - Service Comprehension: Mark "yes" only if the agent correctly identified the requested service/part from the beginning, without confusion. Any misunderstanding about the service type results in "no".
+
+
+CRITÉRIOS ELIMINATÓRIOS (Portuguese content):
+Cada um resulta em 0 pontos se ocorrer:
+
+Ofereceu/garantiu algum serviço que o cliente não tinha direito?
+Preencheu ou selecionou o Veículo/peça incorretos?
+Agiu de forma rude, grosseira, não deixando o cliente falar e/ou se alterou na ligação?
+Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
+Falou negativamente sobre a Carglass, afiliados, seguradoras ou colegas de trabalho?
+Forneceu informações incorretas ou fez suposições infundadas sobre garantias, serviços ou procedimentos?
+Comentou sobre serviços de terceiros ou orientou o cliente para serviços externos sem autorização?
+
+ATENÇÃO: Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio".
+
+SCRIPT DE ENCERRAMENTO CORRETO:
+"obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.
+Lembrando que o seu atendimento tem uma franquia de XXX que deverá ser paga no ato do atendimento. (acessórios/RRSM - tem uma franquia que será confirmada após a vistoria).
+Te ajudo com algo mais?
+Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?
+Agradeço o seu contato, tenha um excelente dia!"
 Avalie se o script acima foi utilizado completamente ou não foi utilizado.
 
-IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
-"""
+OUTPUT FORMAT (English for precision):
+CRITICAL: Return ONLY JSON, no additional text, no code decorators like ```json, and no additional explanations."""
 
         with st.spinner("Analisando a conversa..."):
             try:
