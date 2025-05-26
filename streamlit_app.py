@@ -314,6 +314,7 @@ INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
     2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
     2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
     2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
+    2.7 Recebeu as informações Nome, CPF, Placa, e-mail, Veículo e Endereço do cliente ? 
 3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
@@ -463,4 +464,4 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 try:
                     st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
                 except:
-                    st.text_area("Não foi possível recuperar a resposta da IA)
+                    st.text_area("Não foi possível recuperar a resposta da IA", height=300)
