@@ -302,7 +302,7 @@ Checklist (81 pts totais):
 11.Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
 
-Importante: A pontuação total final deve ser recalculada automaticamente com base nos pontos efetivamente atribuídos em cada item. Mesmo que a estrutura da avaliação preveja um máximo de 81 pontos, nenhum relatório deve exibir 81 pontos se algum item for avaliado com "não". O valor exibido como "Pontuação Total" deve refletir fielmente a soma dos pontos obtidos.
+Important: The final total score must be automatically recalculated based on the points actually awarded for each item. Even though the evaluation structure provides for a maximum of 81 points, no report should display 81 points if any item is evaluated as "no". The value displayed as "Total Score" must faithfully reflect the sum of the points obtained.
 
 INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
@@ -317,11 +317,11 @@ INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
 6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
-7. Confirmação de dados cadastrais (Item 2): Seja extremamente rigoroso na avaliação. Verifique se o atendente coletou/confirmou CADA um dos 7 elementos obrigatórios: 
-    7.1 Nome, CPF, Placa, E-mail, Veículo, Endereço e 2 telefones.
-    7.2 A ausência de QUALQUER elemento resulta em "não" e 0 pontos.
-    7.3 Na justificativa, liste especificamente quais dados faltaram.
-    7.4 Exemplo: "Faltou confirmação do endereço do cliente" ou "Não coletou o nome completo".
+7. Registration data confirmation (Item 2): Be extremely rigorous in the evaluation. Verify if the attendant collected/confirmed EACH of the 7 mandatory elements:
+    7.1 Name, CPF, License Plate, Email, Vehicle, Address, and 2 phone numbers.
+    7.2 The absence of ANY element results in "no" and 0 point.
+    7.3 In the justification, specifically list which data was missing.
+    7.4 Exemple: "Faltou confirmação do endereço do cliente" ou "Não coletou o nome do cliente".
 
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
