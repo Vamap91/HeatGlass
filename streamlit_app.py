@@ -291,10 +291,10 @@ Scoring logic (mandatory):
 Checklist (81 pts totais):
 1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
 2. Solicitou os dados do cadastro do cliente e pediu 2 telefones para contato, nome, cpf, placa do veículo e endereço ? (6 Pontos)
-3. Verbalizou o script da LGPD? (2 Pontos)
+3. O Atendente Verbalizou o script LGPD? (2 Pontos)
 4. Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente? (5 Pontos)
 5. Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade?  (3 Pontos)
-6. Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço? (5 Pontos)
+6. Compreendeu a solicitação do cliente em linha e demonstrou que entende sobre os serviços da empresa? (5 Pontos)
 7. Confirmou as informações completas sobre o dano no veículo? Confirmou data e motivo da quebra, registro do item, dano na pintura e demais informações necessárias para o correto fluxo de atendimento. (tamanho da trinca, LED, Xenon, etc) - 10 Pontos
 8. Confirmou cidade para o atendimento e selecionou corretamente a primeira opção de loja identificada pelo sistema?  (10 Pontos)
 9. A comunicação com o cliente foi eficaz: não houve uso de gírias, linguagem inadequada ou conversas paralelas? O analista informou quando ficou ausente da linha e quando retornou? (5 Pontos)
