@@ -305,18 +305,18 @@ Checklist (81 pts totais):
 Importante: A pontuação total final deve ser recalculada automaticamente com base nos pontos efetivamente atribuídos em cada item. Mesmo que a estrutura da avaliação preveja um máximo de 81 pontos, nenhum relatório deve exibir 81 pontos se algum item for avaliado com "não". O valor exibido como "Pontuação Total" deve refletir fielmente a soma dos pontos obtidos.
 
 INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
-A. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
-B. Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
-    B.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
-    B.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
-    B.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
-    B.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
-    B.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
-    B.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
-C. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
-D. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
-E. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
-F. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
+2. Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
+    2.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
+    2.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
+    2.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
+    2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
+    2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
+    2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
+3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
+4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
+5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
+6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
 
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
