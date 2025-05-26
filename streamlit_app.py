@@ -317,6 +317,11 @@ INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
 6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+7. Confirmação de dados cadastrais (Item 2): Seja extremamente rigoroso na avaliação. Verifique se o atendente coletou/confirmou CADA um dos 7 elementos obrigatórios: 
+    7.1 Nome, CPF, Placa, E-mail, Veículo, Endereço e 2 telefones.
+    7.2 A ausência de QUALQUER elemento resulta em "não" e 0 pontos.
+    7.3 Na justificativa, liste especificamente quais dados faltaram.
+    7.4 Exemplo: "Faltou confirmação do endereço do cliente" ou "Não coletou o nome completo".
 
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
