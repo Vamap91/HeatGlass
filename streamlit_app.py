@@ -171,6 +171,13 @@ h1, h2, h3 {
     border-radius: 6px;
     margin-bottom: 10px;
 }
+.script-parcial {
+    background-color: #ffffcc;
+    padding: 10px;
+    border-left: 5px solid #FFD700;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
 .script-nao-usado {
     background-color: #ffcccc;
     padding: 10px;
@@ -191,6 +198,13 @@ h1, h2, h3 {
     border-radius: 6px;
     margin-bottom: 5px;
     border-left: 5px solid #FF0000;
+}
+.criterio-parcial {
+    background-color: #ffffcc;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    border-left: 5px solid #FFD700;
 }
 .progress-high {
     color: #00C100;
@@ -225,6 +239,8 @@ def get_progress_class(value):
 def get_script_status_class(status):
     if status.lower() == "completo" or status.lower() == "sim":
         return "script-usado"
+    elif "parcial" in status.lower():
+        return "script-parcial"
     else:
         return "script-nao-usado"
 
@@ -258,12 +274,32 @@ if uploaded_file is not None:
         with st.expander("Ver transcrição completa"):
             st.code(transcript_text, language="markdown")
 
-        # Prompt - Usando o checklist e instruções originais, mas removendo temperatura/impacto
+        # Prompt - Versão Híbrida Otimizada
         prompt = f"""
-You are a specialized customer service analyst. Analyze the Portuguese transcript with ABSOLUTE RIGOR:
+## EVALUATION INSTRUCTIONS (English for precision):
+
+You are a specialized customer service analyst. Analyze the Portuguese transcript with ABSOLUTE RIGOR.
+
+### MANDATORY SCORING LOGIC:
+- **Default assumption:** All items start as "NO" until explicitly proven in transcript
+- **Evidence requirement:** Only add points for items marked as "yes" with clear evidence found in transcript
+- **Zero points rule:** If the answer is "no", assign 0 points
+- **Never display 81 points by default**
+- **Final score calculation:** Sum of all "yes" items only
+- **Uncertainty rule:** When in doubt, mark "NO"
+
+### VALIDATION PROCESS:
+1. Read transcript completely first
+2. For each item: Search for explicit evidence before marking "yes"
+3. Apply enhanced validation rules for items 2 and 6 (see below)
+4. Calculate final score as sum of "yes" items only
+
+---
 
 TRANSCRIÇÃO:
 \"\"\"{transcript_text}\"\"\"
+
+---
 
 Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou depois:
 
@@ -282,75 +318,36 @@ Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou dep
   "resumo_geral": "..."
 }}
 
-## EVALUATION INSTRUCTIONS (English for precision):
-
-### MANDATORY SCORING LOGIC:
-- **Default assumption:** All items start as "NO" until explicitly proven in transcript
-- **Evidence requirement:** Only add points for items marked as "yes" with clear evidence found in transcript
-- **Zero points rule:** If the answer is "no", assign 0 points
-- **Never display 81 points by default**
-- **Final score calculation:** Sum of all "yes" items only
-- **Uncertainty rule:** When in doubt, mark "NO"
-
-### VALIDATION PROCESS:
-1. Read transcript completely first
-2. For each item: Search for explicit evidence before marking "yes"
-3. Apply specific validation rules for items 2 and 6 (see below)
-4. Calculate final score as sum of "yes" items only
-
----
-
-## TRANSCRIPT TO ANALYZE:
-```
-{transcript_text}
-```
----
-
-## CHECKLIST (Portuguese content - 81 pts totais):
+## CHECKLIST (81 pts totais):
 
 1. Atendeu a ligação prontamente, dentro de 5 seg. e utilizou a saudação correta com as técnicas do atendimento encantador? (10 Pontos)
-
 2. Confirmou os dados do cadastro e pediu 2 telefones para contato? (Nome, CPF, Placa, e-mail, Veículo, Endereço, etc) (6 Pontos)
-
 3. Verbalizou o script da LGPD? (2 Pontos)
-
 4. Utilizou a técnica do eco para garantir o entendimento sobre as informações coletadas, evitando erros no processo e recontato do cliente? (5 Pontos)
-
 5. Escutou atentamente a solicitação do segurado evitando solicitações em duplicidade? (3 Pontos)
-
 6. Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço? (5 Pontos)
-
 7. Confirmou as informações completas sobre o dano no veículo? Confirmou data e motivo da quebra, registro do item, dano na pintura e demais informações necessárias para o correto fluxo de atendimento. (tamanho da trinca, LED, Xenon, etc) (10 Pontos)
-
 8. Confirmou cidade para o atendimento e selecionou corretamente a primeira opção de loja identificada pelo sistema? (10 Pontos)
-
 9. A comunicação com o cliente foi eficaz: não houve uso de gírias, linguagem inadequada ou conversas paralelas? O analista informou quando ficou ausente da linha e quando retornou? (5 Pontos)
-
 10. A conduta do analista foi acolhedora, com sorriso na voz, empatia e desejo verdadeiro em entender e solucionar a solicitação do cliente? (4 Pontos)
-
 11. Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
-
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
-
----
 
 ## CRITICAL VALIDATION (English for accuracy):
 
 **IMPORTANT:** Final score must be automatically recalculated based on points effectively assigned to each item. Even if the evaluation structure provides for a maximum of 81 points, no report should display 81 points if any item is evaluated as "no". The value displayed as "Total Score" must faithfully reflect the sum of points obtained.
 
----
-
-## INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO (Portuguese content):
+## INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 
 1. **Técnica do eco:** Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
 
 2. **Script LGPD:** O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
-   - 2.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
-   - 2.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
-   - 2.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
-   - 2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
-   - 2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
-   - 2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
+   2.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
+   2.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
+   2.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
+   2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
+   2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
+   2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
 
 3. **Confirmação de histórico:** Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
 
@@ -360,18 +357,13 @@ Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou dep
 
 6. **Script de encerramento:** Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
 
----
-
 ## ENHANCED VALIDATION RULES (English for precision):
 
 7. **Item 2 - Data Confirmation Validation:** Mark "yes" ONLY if you find explicit evidence in transcript of ALL these elements: complete name confirmed, CPF/CNPJ explicitly requested, email explicitly requested, address confirmed, exactly 2 phones collected and confirmed. If ANY element is missing, mark "no".
+
 8. **Item 6 - Service Comprehension Validation:** First identify what specific service/part the customer requested, then verify if the agent understood exactly that same service from the beginning. Any confusion about service/part type results in "no".
 
----
-
-## CRITÉRIOS ELIMINATÓRIOS (Portuguese content):
-
-Cada um resulta em 0 pontos se ocorrer:
+## CRITÉRIOS ELIMINATÓRIOS (cada um resulta em 0 pontos se ocorrer):
 
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
   Exemplos: Prometer serviços fora da cobertura, dar garantias não previstas no contrato.
@@ -388,45 +380,26 @@ Cada um resulta em 0 pontos se ocorrer:
 - Comentou sobre serviços de terceiros ou orientou o cliente para serviços externos sem autorização?
   Exemplos: Sugerir que o cliente verifique procedimentos com a concessionária primeiro, fazer comparações com outros serviços, discutir políticas de garantia de outras empresas sem necessidade.
 
-**ATENÇÃO:** Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio" - estas constituem informações incorretas ou suposições sem confirmação que podem confundir o cliente e são consideradas violações de critérios eliminatórios.
+ATENÇÃO: Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio" - estas constituem informações incorretas ou suposições sem confirmação que podem confundir o cliente e são consideradas violações de critérios eliminatórios.
 
----
-
-## SCRIPT DE ENCERRAMENTO CORRETO (Portuguese content):
-
+O script correto para o item 11 é:
 "*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
 *Lembrando que o seu atendimento tem uma franquia de XXX que deverá ser paga no ato do atendimento. (****acessórios/RRSM ****- tem uma franquia que será confirmada após a vistoria).*
 *Te ajudo com algo mais?*
 *Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?*
 *Agradeço o seu contato, tenha um excelente dia!"*
 
-Avalie se o script acima foi utilizado completamente ou não foi utilizado.
+Avalie se o script acima foi utilizado completamente, parcialmente ou não foi utilizado.
 
----
-
-## OUTPUT FORMAT (English for precision):
-
-**CRITICAL:** Return ONLY JSON, no additional text, no code decorators like ```json, and no additional explanations.
-
-```json
-{
-  "status_final": {"satisfacao": "...", "risco": "...", "desfecho": "..."},
-  "checklist": [
-    {"item": 1, "criterio": "...", "pontos": 10, "resposta": "sim/não", "justificativa": "..."}
-  ],
-  "criterios_eliminatorios": [...],
-  "uso_script": {"status": "completo/não utilizado", "justificativa": "..."},
-  "pontuacao_total": [SUM_OF_YES_ITEMS_ONLY],
-  "resumo_geral": "..."
-}
-```
+IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
+"""
 
         with st.spinner("Analisando a conversa..."):
             try:
                 response = client.chat.completions.create(
                     model=modelo_gpt,
                     messages=[
-                        {"role": "system", "content": "Você é um analista especializado em atendimento. Responda APENAS com o JSON solicitado, sem texto adicional, sem marcadores de código como ```json, e sem explicações."},
+                        {"role": "system", "content": "You are a specialized service analyst. Return ONLY the requested JSON, without additional text, without code markers like ```json, and without explanations."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.3,
@@ -496,7 +469,7 @@ Avalie se o script acima foi utilizado completamente ou não foi utilizado.
                 checklist = analysis.get("checklist", [])
                 total = float(re.sub(r"[^\d.]", "", str(analysis.get("pontuacao_total", "0"))))
                 progress_class = get_progress_class(total)
-                st.progress(min(total / 100, 1.0))
+                st.progress(min(total / 81, 1.0))  # CORRIGIDO: Base 81 em vez de 100
                 st.markdown(f"<h3 class='{progress_class}'>{int(total)} pontos de 81</h3>", unsafe_allow_html=True)
 
                 with st.expander("Ver Detalhes do Checklist"):
@@ -505,6 +478,9 @@ Avalie se o script acima foi utilizado completamente ou não foi utilizado.
                         if resposta == "sim":
                             classe = "criterio-sim"
                             icone = "✅"
+                        elif "parcial" in resposta:  # ADICIONADO: Suporte para resposta parcial
+                            classe = "criterio-parcial"
+                            icone = "⚠️"
                         else:
                             classe = "criterio-nao"
                             icone = "❌"
