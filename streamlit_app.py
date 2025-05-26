@@ -317,6 +317,8 @@ INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
 4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
 5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
 6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+7. Confirmação dos Dados do cadastro, para ser um "sim" precisa existir na ligação os seguintes dados do cliente , cpf, placa do carro, e-mail do cliente, veículo e endereço do cliente caso contrário é um "não". 
+8. Compreendeu a solicitação do cliente em linha e demonstrou domínio sobre o produto/serviço só deve ser validado como "sim" se realmente o atendente está passando informações sem dúvidas, caso contrário deve ser um "não".
 
 Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
 - Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
