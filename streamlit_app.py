@@ -7,90 +7,13 @@ import tempfile
 import re
 import json
 import base64
-import os
-import hashlib
 from datetime import datetime
 from fpdf import FPDF
-
-# ================== MÓDULO DE PROTEÇÃO DE DADOS ==================
-class DataProtectionManager:
-    def __init__(self):
-        self.temp_files_created = []
-        
-    def anonymize_transcript(self, text):
-        """
-        PROTEÇÃO DE DADOS: Remove dados pessoais da transcrição
-        """
-        original_text = text
-        
-        # Remove CPFs (formatos: 123.456.789-00, 12345678900)
-        text = re.sub(r'\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b', '[CPF_REMOVIDO]', text)
-        
-        # Remove placas antigas (ABC-1234) e Mercosul (ABC1D23)
-        text = re.sub(r'\b[A-Z]{3}-?\d{4}\b|\b[A-Z]{3}\d[A-Z]\d{2}\b', '[PLACA_REMOVIDA]', text)
-        
-        # Remove emails
-        text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL_REMOVIDO]', text)
-        
-        # Remove telefones (vários formatos)
-        text = re.sub(r'\b\(?\d{2}\)?\s?\d{4,5}-?\d{4}\b', '[TELEFONE_REMOVIDO]', text)
-        
-        # Remove RG (formatos comuns)
-        text = re.sub(r'\b\d{1,2}\.?\d{3}\.?\d{3}-?[0-9X]\b', '[RG_REMOVIDO]', text)
-        
-        # NOTA: Nomes de clientes são mantidos para contexto da análise
-        # Removemos apenas dados pessoais estruturados (CPF, telefone, etc.)
-        
-        # Verificar se houve mudanças
-        changes_made = len(original_text) != len(text)
-        if changes_made:
-            st.info("🔒 Dados pessoais identificados e anonimizados automaticamente")
-            
-        return text
-    
-    def track_temp_file(self, file_path):
-        """
-        RASTREAMENTO: Adiciona arquivo à lista para limpeza posterior
-        """
-        file_info = {
-            'path': file_path,
-            'created_at': datetime.now(),
-            'hash': hashlib.md5(file_path.encode()).hexdigest()[:8]
-        }
-        self.temp_files_created.append(file_info)
-        
-        # Log da criação
-        st.write(f"📁 Arquivo temporário criado: {file_info['hash']}")
-        
-        return file_path
-    
-    def cleanup_all_temp_files(self):
-        """
-        LIMPEZA: Remove todos os arquivos temporários
-        """
-        cleaned_count = 0
-        
-        for file_info in self.temp_files_created:
-            try:
-                if os.path.exists(file_info['path']):
-                    os.unlink(file_info['path'])
-                    cleaned_count += 1
-                    st.write(f"🗑️ Removido: {file_info['hash']} (criado em {file_info['created_at'].strftime('%H:%M:%S')})")
-            except Exception as e:
-                st.warning(f"⚠️ Erro ao remover {file_info['hash']}: {str(e)}")
-        
-        if cleaned_count > 0:
-            st.success(f"✅ {cleaned_count} arquivo(s) temporário(s) removido(s) com sucesso")
-        
-        # Limpa a lista
-        self.temp_files_created.clear()
-
-# ================== CÓDIGO PRINCIPAL ==================
 
 # Inicializa o novo cliente da OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# Função para criar PDF com dados anonimizados
+# Função para criar PDF
 def create_pdf(analysis, transcript_text, model_name):
     pdf = FPDF()
     pdf.add_page()
@@ -109,7 +32,6 @@ def create_pdf(analysis, transcript_text, model_name):
     pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 10, f"Data da análise: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
     pdf.cell(0, 10, f"Modelo utilizado: {model_name}", 0, 1)
-    pdf.cell(0, 10, "Status: Dados pessoais anonimizados conforme LGPD", 0, 1)  # NOVO
     pdf.ln(5)
     
     # Status Final
@@ -168,10 +90,10 @@ def create_pdf(analysis, transcript_text, model_name):
         pdf.multi_cell(0, 10, f"Justificativa: {justificativa}")
         pdf.ln(5)
     
-    # Transcrição anonimizada na última página
+    # Transcrição na última página
     pdf.add_page()
     pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "Transcrição Anonimizada", 0, 1)  # MODIFICADO
+    pdf.cell(0, 10, "Transcrição da Ligação", 0, 1)
     pdf.set_font("Arial", "", 10)
     pdf.multi_cell(0, 10, transcript_text)
     
@@ -287,13 +209,6 @@ h1, h2, h3 {
     border: 2px solid #FF0000;
     font-weight: bold;
 }
-.privacy-notice {
-    background-color: #e8f4f8;
-    border-left: 5px solid #2196F3;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -316,65 +231,38 @@ def get_script_status_class(status):
 # Modelo fixo: GPT-4 Turbo
 modelo_gpt = "gpt-4-turbo"
 
-# ================== INTERFACE PRINCIPAL ==================
-
 # Título
 st.title("HeatGlass")
 st.write("Análise inteligente de ligações: avaliação de atendimento ao cliente e conformidade com processos.")
-
-# NOVO: Aviso de Privacidade
-st.markdown("""
-<div class="privacy-notice">
-🔒 <strong>Proteção de Dados Ativada</strong><br>
-• Arquivos de áudio são removidos automaticamente após o processamento<br>
-• Dados pessoais (CPF, nomes, telefones) são anonimizados na transcrição<br>
-• Processamento conforme LGPD - nenhum dado pessoal é armazenado<br>
-• Relatórios contêm apenas dados anonimizados
-</div>
-""", unsafe_allow_html=True)
 
 # Upload de áudio
 uploaded_file = st.file_uploader("Envie o áudio da ligação (.mp3)", type=["mp3"])
 
 if uploaded_file is not None:
-    # NOVO: Inicializar proteção de dados
-    if 'data_protection' not in st.session_state:
-        st.session_state.data_protection = DataProtectionManager()
-
-    # MODIFICADO: Criar arquivo temporário com rastreamento
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
         tmp.write(uploaded_file.read())
         tmp_path = tmp.name
 
-    # NOVO: Registrar arquivo para limpeza
-    st.session_state.data_protection.track_temp_file(tmp_path)
-
     st.audio(uploaded_file, format='audio/mp3')
 
     if st.button("🔍 Analisar Atendimento"):
-        try:  # NOVO: Envolver tudo em try/finally para garantir limpeza
-            # Transcrição via Whisper
-            with st.spinner("Transcrevendo o áudio..."):
-                with open(tmp_path, "rb") as audio_file:
-                    transcript = client.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_file
-                    )
-                raw_transcript = transcript.text  # MODIFICADO: Guardar versão original
+        # Transcrição via Whisper
+        with st.spinner("Transcrevendo o áudio..."):
+            with open(tmp_path, "rb") as audio_file:
+                transcript = client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file
+                )
+            transcript_text = transcript.text
 
-            # NOVO: Anonimização imediata
-            with st.spinner("Anonimizando dados pessoais..."):
-                transcript_text = st.session_state.data_protection.anonymize_transcript(raw_transcript)
+        with st.expander("Ver transcrição completa"):
+            st.code(transcript_text, language="markdown")
 
-            # MODIFICADO: Mostrar apenas transcrição anonimizada
-            with st.expander("Ver transcrição anonimizada"):
-                st.code(transcript_text, language="markdown")
-
-            # Prompt usando dados anonimizados
-            prompt = f"""
+        # Prompt - Usando o checklist e instruções originais, mas removendo temperatura/impacto
+        prompt = f"""
 Você é um especialista em atendimento ao cliente. Avalie a transcrição a seguir:
 
-TRANSCRIÇÃO ANONIMIZADA:
+TRANSCRIÇÃO:
 \"\"\"{transcript_text}\"\"\"
 
 Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou depois:
@@ -395,8 +283,8 @@ Retorne APENAS um JSON com os seguintes campos, sem texto adicional antes ou dep
 }}
 
 Scoring logic (mandatory):
-*Only add points for items marked as "yes".
-*If the answer is "no", assign 0 points.
+*Only add points for items marked as “yes”.
+*If the answer is “no”, assign 0 points.
 *Never display 81 points by default.
 *Final score = sum of all "yes" items only.
 
@@ -414,12 +302,63 @@ Checklist (81 pts totais):
 11.Realizou o script de encerramento completo, informando: prazo de validade, franquia, link de acompanhamento e vistoria, e orientou que o cliente aguarde o contato para agendamento? (15 Pontos)
 12. Orientou o cliente sobre a pesquisa de satisfação do atendimento? (6 Pontos)
 
-[resto do prompt igual ao original...]
+Scoring logic (mandatory):
+*Only add points for items marked as “yes”.
+*If the answer is “no”, assign 0 points.
+*Never display 81 points by default.
+*Final score = sum of all "yes" items only
+
+INSTRUÇÕES ADICIONAIS DE AVALIAÇÃO:
+1. Técnica do eco: Marque como "sim" somente se o atendente repetir verbalmente informações essenciais como telefones, placa ou CPF após coletá-las. O eco deve ser claro, objetivo e demonstrar validação do entendimento. Caso contrário, marque como "não".
+2. Script LGPD: O atendente deve mencionar explicitamente que o telefone será compartilhado com o prestador de serviço, com ênfase em privacidade ou consentimento. As seguintes variações são válidas e devem ser aceitas como equivalentes:
+    2.1 Você permite que a nossa empresa compartilhe o seu telefone com o prestador que irá lhe atender?
+    2.2 Podemos compartilhar seu telefone com o prestador que irá realizar o serviço?
+    2.3 Seu telefone pode ser informado ao prestador que irá realizar o serviço?
+    2.4 O prestador pode ter acesso ao seu número para realizar o agendamento do serviço?
+    2.5 Podemos compartilhar seu telefone com o prestador que irá te atender?
+    2.6 Você autoriza o compartilhamento do telefone informado com o prestador que irá te atender?
+3. Confirmação de histórico: Verifique se há menção explícita ao histórico de utilização do serviço pelo cliente. A simples localização do cliente no sistema NÃO constitui confirmação de histórico.
+4. Pontuação: Cada item não realizado deve impactar estritamente a pontuação final. Os pontos máximos de cada item estão indicados entre parênteses - se marcado como "não", zero pontos devem ser atribuídos.
+5. Critérios eliminatórios: Avalie com alto rigor - qualquer ocorrência, mesmo que sutil, deve ser marcada.
+6. Script de encerramento: Compare literalmente com o modelo fornecido - só marque como "completo" se TODOS os elementos estiverem presentes (validade, franquia, link, pesquisa de satisfação e despedida).
+7. Registration data confirmation (Item 2): Be extremely rigorous in the evaluation. Verify if the attendant collected/confirmed EACH of the 7 mandatory elements:
+    7.1 Name, CPF, License Plate, Email, Vehicle, Address, and 2 phone numbers.
+    7.2 The absence of ANY element results in "no" and 0 point.
+    7.3 In the justification, specifically list which data was missing.
+    7.4 Exemple: "Faltou confirmação do endereço do cliente" ou "Não coletou o nome do cliente".
+
+Critérios Eliminatórios (cada um resulta em 0 pontos se ocorrer):
+- Ofereceu/garantiu algum serviço que o cliente não tinha direito? 
+  Exemplos: Prometer serviços fora da cobertura, dar garantias não previstas no contrato.
+- Preencheu ou selecionou o Veículo/peça incorretos?
+  Exemplos: Registrar modelo diferente do informado, selecionar peça diferente da solicitada.
+- Agiu de forma rude, grosseira, não deixando o cliente falar e/ou se alterou na ligação?
+  Exemplos: Interrupções constantes, tom agressivo, impedir cliente de explicar situação.
+- Encerrou a chamada ou transferiu o cliente sem o seu conhecimento?
+  Exemplos: Desligar abruptamente, transferir sem explicar ou obter consentimento.
+- Falou negativamente sobre a Carglass, afiliados, seguradoras ou colegas de trabalho?
+  Exemplos: Criticar atendimento prévio, fazer comentários pejorativos sobre a empresa.
+- Forneceu informações incorretas ou fez suposições infundadas sobre garantias, serviços ou procedimentos?
+  Exemplos: "Como a lataria já passou para nós, então provavelmente a sua garantia é motor e câmbio" sem ter certeza disso, sugerir que o cliente pode perder a garantia do veículo.
+- Comentou sobre serviços de terceiros ou orientou o cliente para serviços externos sem autorização?
+  Exemplos: Sugerir que o cliente verifique procedimentos com a concessionária primeiro, fazer comparações com outros serviços, discutir políticas de garantia de outras empresas sem necessidade.
+
+ATENÇÃO: Avalie com rigor frases como "Não teria problema em mexer na lataria e o senhor perder a garantia?" ou "provavelmente a sua garantia é motor e câmbio" - estas constituem informações incorretas ou suposições sem confirmação que podem confundir o cliente e são consideradas violações de critérios eliminatórios.
+
+O script correto para a pergunta 12 é:
+"*obrigada por me aguardar! O seu atendimento foi gerado, e em breve receberá dois links no whatsapp informado, para acompanhar o pedido e realizar a vistoria.*
+*Lembrando que o seu atendimento tem uma franquia de XXX que deverá ser paga no ato do atendimento. (****acessórios/RRSM ****- tem uma franquia que será confirmada após a vistoria).*
+*Te ajudo com algo mais?*
+*Ao final do atendimento terá uma pesquisa de Satisfação, a nota 5 é a máxima, tudo bem?*
+*Agradeço o seu contato, tenha um excelente dia!"*
+
+Avalie se o script acima foi utilizado completamente ou não foi utilizado.
 
 IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
 
-            with st.spinner("Analisando a conversa..."):
+        with st.spinner("Analisando a conversa..."):
+            try:
                 response = client.chat.completions.create(
                     model=modelo_gpt,
                     messages=[
@@ -427,15 +366,15 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.3,
-                    response_format={"type": "json_object"}
+                    response_format={"type": "json_object"}  # Força resposta em formato JSON
                 )
                 result = response.choices[0].message.content.strip()
 
-                # Debug
+                # Mostrar resultado bruto para depuração
                 with st.expander("Debug - Resposta bruta"):
                     st.code(result, language="json")
                 
-                # Processar JSON
+                # Tentar extrair e validar o JSON com a função melhorada
                 try:
                     if not result.startswith("{"):
                         analysis = extract_json(result)
@@ -446,7 +385,6 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                     st.text_area("Resposta da IA:", value=result, height=300)
                     st.stop()
 
-                # Exibir resultados (código original)
                 # Status Final
                 st.subheader("📋 Status Final")
                 final = analysis.get("status_final", {})
@@ -518,40 +456,19 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
                 st.subheader("📝 Resumo Geral")
                 st.markdown(f"<div class='result-box'>{analysis.get('resumo_geral')}</div>", unsafe_allow_html=True)
                 
-                # MODIFICADO: Gerar PDF com dados anonimizados
+                # Gerar PDF
                 st.subheader("📄 Relatório em PDF")
                 try:
-                    pdf_bytes = create_pdf(analysis, transcript_text, modelo_gpt)  # transcript_text já anonimizado
+                    pdf_bytes = create_pdf(analysis, transcript_text, modelo_gpt)
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"HeatGlass_Relatorio_Anonimizado_{timestamp}.pdf"  # MODIFICADO: Nome indica anonimização
+                    filename = f"HeatGlass_Relatorio_{timestamp}.pdf"
                     st.markdown(get_pdf_download_link(pdf_bytes, filename), unsafe_allow_html=True)
                 except Exception as pdf_error:
                     st.error(f"Erro ao gerar PDF: {str(pdf_error)}")
 
-        except Exception as e:
-            st.error(f"Erro ao processar a análise: {str(e)}")
-            try:
-                st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
-            except:
-                st.text_area("Não foi possível recuperar a resposta da IA", height=300)
-        
-        finally:
-            # NOVO: Limpeza garantida (sempre executa)
-            st.subheader("🧹 Limpeza de Dados")
-            st.session_state.data_protection.cleanup_all_temp_files()
-
-# NOVO: Botão manual de limpeza (segurança extra)
-if st.button("🗑️ Limpar Todos os Arquivos Temporários"):
-    if 'data_protection' in st.session_state:
-        st.session_state.data_protection.cleanup_all_temp_files()
-    else:
-        st.info("Nenhum arquivo temporário para limpar")
-
-# NOVO: Status de arquivos temporários (para debugging)
-if st.checkbox("Mostrar Status de Arquivos Temporários (Debug)"):
-    if 'data_protection' in st.session_state and st.session_state.data_protection.temp_files_created:
-        st.write("📁 Arquivos temporários ativos:")
-        for file_info in st.session_state.data_protection.temp_files_created:
-            st.write(f"- {file_info['hash']}: {file_info['created_at'].strftime('%H:%M:%S')}")
-    else:
-        st.success("✅ Nenhum arquivo temporário ativo")
+            except Exception as e:
+                st.error(f"Erro ao processar a análise: {str(e)}")
+                try:
+                    st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
+                except:
+                    st.text_area("Não foi possível recuperar a resposta da IA", height=300)
