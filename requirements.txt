@@ -2,5 +2,4 @@ streamlit>=1.32.0
 openai>=1.11.0
 python-dotenv>=1.0.1
 fpdf==1.7.2
-hashlib2>=1.1.1
 datetime
